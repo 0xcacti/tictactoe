@@ -1,8 +1,11 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-contract tictactoe {
-        uint256 currentGameId;
+import {Game} from "src/Game.sol";
+
+contract TicTacToe {
+    using Game for uint256;
+    uint256 currentGameId;
     mapping(uint256 => uint256) mapOfPlayerZerosAndGames;
     mapping(uint256 => address) mapOfPlayerOnes;
 
