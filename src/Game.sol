@@ -4,17 +4,14 @@ pragma solidity ^0.8.13;
 library Game {
     using Game for uint256;
 
+    error IllegalMove();
 
-    function applyMove(uint256 _board, uint256 _move) internal pure returns (uint256) {
 
-    }
-    /// @notice Determines whether a move is a legal move or not (includes checking whether king is
-    /// checked or not after the move).
-    /// @param _board The board to analyze.
-    /// @param _move The move to check.
-    /// @return Whether the move is legal or not.
+    function applyMove(uint256 _board, uint256 _move) internal pure returns (uint256) {}
+
+    
     function isLegalMove(uint256 _board, uint256 _move) internal pure returns (bool) {
-
+        return true;
     }
 
     function isValid(uint256 _board, uint256 _toIndex) internal pure returns (bool) {
