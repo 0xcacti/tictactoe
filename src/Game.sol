@@ -14,14 +14,4 @@ library Game {
         return true;
     }
 
-    function isValid(uint256 _board, uint256 _toIndex) internal pure returns (bool) {
-
-    }
-
-
-    function getAdjustedIndex(uint256 _index) internal pure returns (uint256) {
-
-    }
-
-
 }

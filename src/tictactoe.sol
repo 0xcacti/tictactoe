@@ -3,10 +3,14 @@ pragma solidity ^0.8.13;
 
 import "solmate/tokens/ERC721.sol";
 import "solmate/auth/Owned.sol";
+import "openzeppelin-contracts/contracts/utils/Strings.sol";
+
 import {Game} from "src/Game.sol";
 
 contract TicTacToe is ERC721, Owned {
     using Game for uint256;
+    using Strings for uint256;
+    
     uint256 currentGameId;
     mapping(uint256 => uint256) mapOfPlayerZerosAndGames;
     mapping(uint256 => address) mapOfPlayerOnes;
