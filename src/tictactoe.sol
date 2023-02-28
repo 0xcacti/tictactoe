@@ -18,13 +18,22 @@ contract TicTacToe is ERC721, Owned {
 
     constructor() ERC721("TicTacToe", "xoxo") Owned(msg.sender) {}
 
-    function createNewGame(address _playerZero, address _playerOne) external {
+    function createNewGame(address _playerZero, address _playerOne) external returns(uint256) {
         uint256 gameId = currentGameId++;
         mapOfPlayerZerosAndGames[gameId] = uint256(uint160(_playerZero));
         mapOfPlayerOnes[gameId] = _playerOne;
+        return gameId;
+    }
+
+    function retrieveAllGameInfo(uint256 _gameId) public view returns (uint256, address) {
+        return(mapOfPlayerZerosAndGames[_gameId], mapOfPlayerOnes[_gameId]);
     }
 
     function retrieveGame(uint256 _gameId) public view returns (uint256) {
+        bytes memory val;
+        // assembly {
+        //     val := shr(mload(1), 160));
+        // }
         return mapOfPlayerZerosAndGames[_gameId] >> 160;
     }
 
@@ -34,7 +43,7 @@ contract TicTacToe is ERC721, Owned {
             if (!game.isLegalMove(_move)) {
                 revert Game.IllegalMove();
             }
-            game = game.applyMove(_move);
+            mapOfPlayerZerosAndGames[_gameId] = game.applyMove(_move);
         }
     }
 
