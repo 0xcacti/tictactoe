@@ -30,31 +30,81 @@ contract TicTacToeTest is Test {
     function testSwitchTurnSucceeds() public {
         console2.logBytes32(bytes32((uint256(0xff << 72))));
         uint256 gameId = t.createNewGame(playerZero, playerOne);
-        uint256 gameBefore = t.retrieveGame(gameId);
+        (uint256 gameBefore, ) = t.retrieveAllGameInfo(gameId);
         console.logBytes32(bytes32(gameBefore));
-
-
-        t.takeTurn(gameId, 1);
-        uint256 gameAfter = t.retrieveGame(gameId);
+        // 00 00 00 | 00 00 00 | 00 00 00
+        t.takeTurn(gameId, 8);
+        (uint256 gameAfter, ) = t.retrieveAllGameInfo(gameId);
         console.logBytes32(bytes32(gameAfter));
-        
+        t.takeTurn(gameId, 7);
+        (uint256 gameAfter2, ) = t.retrieveAllGameInfo(gameId);
+        console.logBytes32(bytes32(gameAfter2));
+        t.takeTurn(gameId, 6);
+        (uint256 gameAfter3, ) = t.retrieveAllGameInfo(gameId);
+        console.logBytes32(bytes32(gameAfter3));
 
+        // 0x0000010100000000000000004675c7e5baafbffbca748158becba61ef3b0a263
+        // 0x0000000102000000000000004675c7e5baafbffbca748158becba61ef3b0a263
+        // 0x0000010102020000000000004675c7e5baafbffbca748158becba61ef3b0a263
+
+        
         // I want to mock check for is legal move here
 
 
     }
 
     function testThingy() public {
+        uint256 turnPosition = 0xff << 72;
         uint256 _board = 0;
         console2.logBytes32(bytes32(_board));
-        uint256 _mask = (0xff << 72);
-        console2.logBytes32(bytes32(_mask));
-        uint256 maskedBoard = _board & _mask;
-        console2.logBytes32(bytes32(maskedBoard));
-        uint256 _turnSwitcher = (0x01 << 72);
-        console2.logBytes32(bytes32(_turnSwitcher));
-        _board |= maskedBoard ^ _turnSwitcher;
+        console2.logBytes32(bytes32(turnPosition));
+        console2.log("");
+
+
+        // take turn 
+        uint256 mark = (( _board ^ turnPosition) ==  turnPosition ? 0x01 : 0x02);
+        console2.logBytes32(bytes32(mark));
+        uint256 _move = 8;
+        _board |= (mark << (_move * 8));
+        _board ^= (0x01 << 72);
         console2.logBytes32(bytes32(_board));
+        console2.log("");
+
+        // take second turn 
+        mark = (( _board ^ turnPosition) ==  turnPosition ? 0x01 : 0x02);
+        console2.logBytes32(bytes32(mark));
+        _move = 7;
+        _board |= (mark << (_move * 8));
+        _board ^= (0x01 << 72);
+        console2.logBytes32(bytes32(_board));
+        console2.log("");
+
+
+
+        // take third turn 
+        mark = (( _board ^ turnPosition) ==  turnPosition ? 0x01 : 0x02);
+        console2.logBytes32(bytes32(mark));
+        _move = 6;
+        _board |= (mark << (_move * 8));
+        _board ^= (0x01 << 72);
+        console2.logBytes32(bytes32(_board));
+        console2.log("");
+        uint256 xor =  0x0000000000000000000000000000000000000000000000010200000000000000 ^ 0x00000000000000000000000000000000000000000000ff000000000000000000;
+        console2.logBytes32(bytes32(xor));
+        // 0x00000000000000000000000000000000000000000000 01 01 00 00 00 00 00 00 00 00
+        // 0x00000000000000000000000000000000000000000000 ff 00 00 00 00 00 00 00 00 00
+        // ^ != 0xff so we use 2 next 
+        // 
+        // 0x00000000000000000000000000000000000000000000 00 01 02 00 00 00 00 00 00 00
+        // ^ 
+        // 0x00000000000000000000000000000000000000000000 ff 00 00 00 00 00 00 00 00 00
+        // ----------------------------------------------------------------------------
+        // 0x00000000000000000000000000000000000000000000 ff 01 02 00 00 00 00 00 00 00
+
+        // 0x00000000000000000000000000000000000000000000 01 01 02 02 00 00 00 00 00 00
+ 
+    // you have to figure out why turn isn't switching right.
+
         
     }
 

@@ -5,29 +5,31 @@ library Game {
     using Game for uint256;
 
     error IllegalMove();
+    uint256 constant turnPosition = 0xff << 72;
 
 
     function applyMove(uint256 _board, uint256 _move) internal pure returns (uint256) {
+
+        // pass in board index
+        // check move is valid 
+        // check for player turn 
+        // apply one or two as move depending on player turn 
+        // return board 
+
         // I think I want to just take the or, check for winner, flip the turn
-        _board |= _move;
-
-       // what is the most efficient way to flip just the bit representing whose turn it is
-       uint256 mask = (_board & (0xff << 72));
-        _board |= mask ^ (0x01 << 72);
-       // 
-        return _board;
-
-
-       // might look like this 
-           // your game board 
-        // 0x000000000000000000000000 | 0x000000000000000000000001
-        // 0x00000000000000000000000000000000000000000000ff000000000000000000
         
-        // this is how you update the turn --
-        // mask to isolate just the section that you want 
-        // 0x0000|00|000000000000000001
-        // &
-        // 0x0000|ff|000000000000000000
+        uint256 mark = (( _board ^ turnPosition) ==  turnPosition ? 0x01 : 0x02);
+
+        // need to programatically turn mark into the right location, if it's 0, then were fine 
+        // if it's 0, 
+        // if it's 1 => 8 bit shift 
+        // if it's 2 => 4
+        // if it's 3 => 
+        // 0x000000
+        // 0x0000020000
+        _board |= (mark << (_move * 8));
+        _board ^= (0x01 << 72);
+        return _board;
     }
 
     
