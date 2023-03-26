@@ -108,10 +108,33 @@ contract TicTacToeTest is Test {
 
     }
 
+    function testGameOverMath() public {
+        uint256 gameId = t.createNewGame(playerZero, playerOne);
+        vm.prank(playerZero);
+        t.takeTurn(gameId, 0);
+        vm.prank(playerOne);
+        t.takeTurn(gameId, 4);
+        vm.prank(playerZero);
+        t.takeTurn(gameId, 1);
+        vm.prank(playerOne);
+        t.takeTurn(gameId, 5);
+        vm.prank(playerZero);
+        t.takeTurn(gameId, 2);
+        vm.prank(playerOne);
+        t.takeTurn(gameId, 6);
+        uint256 gameBoard = t.retrieveGame(gameId);
+        assertEq(isolateWinnerByte(gameBoard), 3);
+    }
+
     // helper function 
     function isolateTurnByte(uint256 gameBoard) public pure returns (uint256 turn){
         uint256 mask = uint256(0xff << 72);   
         return (gameBoard & mask);
+    }
+
+    function isolateWinnerByte(uint256 gameBoard) public pure returns (uint256 winner){
+        uint256 mask = uint256(0xff << 80);   
+        return (gameBoard & mask) >> 8;
     }
 
     // your game board 

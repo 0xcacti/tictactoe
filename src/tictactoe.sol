@@ -42,6 +42,15 @@ contract TicTacToe is ERC721, Owned {
             
             (uint256 gameInfo, address playerOne) = retrieveAllGameInfo(_gameId);
             uint256 game = gameInfo >> 160;
+
+            if (!game.isLegalMove(_move)) {
+                revert Game.IllegalMove();
+            }
+
+            if (game.isGameOver()) {
+                revert Game.GameOver();
+            }
+
             address playerZero = address(uint160(gameInfo));
             uint256 turn = game.getTurn();
 
@@ -57,10 +66,9 @@ contract TicTacToe is ERC721, Owned {
                 revert NotYourTurn();
             } 
 
-            if (!game.isLegalMove(_move)) {
-                revert Game.IllegalMove();
-            }
+
             mapOfPlayerZerosAndGames[_gameId] = (game.applyMove(_move) << 160) | uint256(uint160(playerZero));
+
         }
     }
 
