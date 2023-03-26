@@ -4,6 +4,8 @@ pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
 import "src/TicTacToe.sol";
+import {Game} from "src/Game.sol";
+
 
 contract TicTacToeTest is Test {
 
@@ -18,102 +20,104 @@ contract TicTacToeTest is Test {
     }
 
     function testNewGameHasProperInitialState() public {
-
         uint256 gameId = t.createNewGame(playerZero, playerOne);
         (uint256 playerZeroAndGame, address inGamePlayerOne) = t.retrieveAllGameInfo(gameId);
         assertEq(playerZeroAndGame >> 160, 0);
         assertEq(address(uint160(playerZeroAndGame)), playerZero);
         assertEq(inGamePlayerOne, playerOne);
+    }
 
+    function testRejectMoveOutOfBounds() public {
+        uint256 gameId = t.createNewGame(playerZero, playerOne);
+        vm.startPrank(playerZero);
+        vm.expectRevert(Game.IllegalMove.selector);
+        t.takeTurn(gameId, 9);
+        vm.stopPrank();
+    }
+
+    function testRejectMoveToOccupiedSpace() public {
+        uint256 gameId = t.createNewGame(playerZero, playerOne);
+        vm.startPrank(playerZero);
+        t.takeTurn(gameId, 8);
+        vm.stopPrank();
+
+        vm.startPrank(playerOne);
+        vm.expectRevert(Game.IllegalMove.selector);
+        t.takeTurn(gameId, 8);
+        vm.stopPrank();
+    }
+
+    function testRejectMoveByWrongPlayer() public {
+        uint256 gameId = t.createNewGame(playerZero, playerOne);
+        vm.startPrank(playerOne);
+        vm.expectRevert(TicTacToe.NotYourTurn.selector);
+        t.takeTurn(gameId, 8);
+        vm.stopPrank();
+    }
+
+    function testRejectMoveByInvalidPlayer() public {
+        uint256 gameId = t.createNewGame(playerZero, playerOne);
+        vm.startPrank(address(0));
+        vm.expectRevert(TicTacToe.InvalidPlayer.selector);
+        t.takeTurn(gameId, 8);
+        vm.stopPrank();
+    }
+
+    function testRejectMoveAfterGameEnd() public {
+        uint256 gameId = t.createNewGame(playerZero, playerOne);
+        vm.prank(playerZero);
+        t.takeTurn(gameId, 0);
+        vm.prank(playerOne);
+        t.takeTurn(gameId, 4);
+        vm.prank(playerZero);
+        t.takeTurn(gameId, 1);
+        vm.prank(playerOne);
+        t.takeTurn(gameId, 5);
+        vm.prank(playerZero);
+        t.takeTurn(gameId, 2);
+        vm.prank(playerOne);
+        vm.expectRevert(Game.GameOver.selector);
+        t.takeTurn(gameId, 6);
     }
 
     function testSwitchTurnSucceeds() public {
-        console2.logBytes32(bytes32((uint256(0xff << 72))));
+
+        // set turn bits
+        uint256 playerZerosTurn = 0;
+        uint256 playerOnesTurn = uint256(0x01 << 72);
+          
+        // create game 
         uint256 gameId = t.createNewGame(playerZero, playerOne);
-        (uint256 gameBefore, ) = t.retrieveAllGameInfo(gameId);
-        console.logBytes32(bytes32(gameBefore));
-        // 00 00 00 | 00 00 00 | 00 00 00
+        uint256 gameBoard = t.retrieveGame(gameId);
+
+        // take turns and check that turn bit flips
+        vm.prank(playerZero);
         t.takeTurn(gameId, 8);
-        (uint256 gameAfter, ) = t.retrieveAllGameInfo(gameId);
-        console.logBytes32(bytes32(gameAfter));
+        gameBoard = t.retrieveGame(gameId);
+        assertEq(isolateTurnByte(gameBoard), playerOnesTurn);
+
+        vm.prank(playerOne);
         t.takeTurn(gameId, 7);
-        (uint256 gameAfter2, ) = t.retrieveAllGameInfo(gameId);
-        console.logBytes32(bytes32(gameAfter2));
+        gameBoard  = t.retrieveGame(gameId);
+        assertEq(isolateTurnByte(gameBoard), playerZerosTurn);
+
+        vm.prank(playerZero);
         t.takeTurn(gameId, 6);
-        (uint256 gameAfter3, ) = t.retrieveAllGameInfo(gameId);
-        console.logBytes32(bytes32(gameAfter3));
-
-        // 0x0000010100000000000000004675c7e5baafbffbca748158becba61ef3b0a263
-        // 0x0000000102000000000000004675c7e5baafbffbca748158becba61ef3b0a263
-        // 0x0000010102020000000000004675c7e5baafbffbca748158becba61ef3b0a263
-
-        
-        // I want to mock check for is legal move here
-
+        gameBoard  = t.retrieveGame(gameId);
+        assertEq(isolateTurnByte(gameBoard), playerOnesTurn);
 
     }
 
-    function testThingy() public {
-        uint256 turnPosition = 0xff << 72;
-        uint256 _board = 0;
-        console2.logBytes32(bytes32(_board));
-        console2.logBytes32(bytes32(turnPosition));
-        console2.log("");
-
-
-        // take turn 
-        uint256 mark = (( _board ^ turnPosition) ==  turnPosition ? 0x01 : 0x02);
-        console2.logBytes32(bytes32(mark));
-        uint256 _move = 8;
-        _board |= (mark << (_move * 8));
-        _board ^= (0x01 << 72);
-        console2.logBytes32(bytes32(_board));
-        console2.log("");
-
-        // take second turn 
-        mark = (( _board ^ turnPosition) ==  turnPosition ? 0x01 : 0x02);
-        console2.logBytes32(bytes32(mark));
-        _move = 7;
-        _board |= (mark << (_move * 8));
-        _board ^= (0x01 << 72);
-        console2.logBytes32(bytes32(_board));
-        console2.log("");
-
-
-
-        // take third turn 
-        mark = (( _board ^ turnPosition) ==  turnPosition ? 0x01 : 0x02);
-        console2.logBytes32(bytes32(mark));
-        _move = 6;
-        _board |= (mark << (_move * 8));
-        _board ^= (0x01 << 72);
-        console2.logBytes32(bytes32(_board));
-        console2.log("");
-        uint256 xor =  0x0000000000000000000000000000000000000000000000010200000000000000 ^ 0x00000000000000000000000000000000000000000000ff000000000000000000;
-        console2.logBytes32(bytes32(xor));
-        // 0x00000000000000000000000000000000000000000000 01 01 00 00 00 00 00 00 00 00
-        // 0x00000000000000000000000000000000000000000000 ff 00 00 00 00 00 00 00 00 00
-        // ^ != 0xff so we use 2 next 
-        // 
-        // 0x00000000000000000000000000000000000000000000 00 01 02 00 00 00 00 00 00 00
-        // ^ 
-        // 0x00000000000000000000000000000000000000000000 ff 00 00 00 00 00 00 00 00 00
-        // ----------------------------------------------------------------------------
-        // 0x00000000000000000000000000000000000000000000 ff 01 02 00 00 00 00 00 00 00
-
-        // 0x00000000000000000000000000000000000000000000 01 01 02 02 00 00 00 00 00 00
- 
-    // you have to figure out why turn isn't switching right.
-
-        
+    // helper function 
+    function isolateTurnByte(uint256 gameBoard) public pure returns (uint256 turn){
+        uint256 mask = uint256(0xff << 72);   
+        return (gameBoard & mask);
     }
-
-
 
     // your game board 
         // 0x00 00 00 | 00 00 00 | 00 00 00 | 00 00 00
-        //         turnByte : 0 => playerZero's turn, 1 => playerOnes turn, 2 => gameHasEnded
-        //      winnerByte;
+        //         turnByte : 0 => playerZero's turn, 1 => playerOnes turn 
+        //       winnerByte : 0 => No Winner, 1 => playerZero, 2 => playerOne, 3 => tie game
 
 
 

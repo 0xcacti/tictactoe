@@ -16,6 +16,10 @@ contract TicTacToe is ERC721, Owned {
     mapping(uint256 => address) mapOfPlayerOnes;
     string private baseURI;
 
+    error NotYourTurn();
+    error InvalidPlayer();
+
+
     constructor() ERC721("TicTacToe", "xoxo") Owned(msg.sender) {}
 
     function createNewGame(address _playerZero, address _playerOne) external returns(uint256) {
@@ -30,23 +34,33 @@ contract TicTacToe is ERC721, Owned {
     }
 
     function retrieveGame(uint256 _gameId) public view returns (uint256) {
-        bytes memory val;
-        // assembly {
-        //     val := shr(mload(1), 160));
-        // }
         return mapOfPlayerZerosAndGames[_gameId] >> 160;
     }
 
     function takeTurn(uint256 _gameId, uint256 _move) external {
         unchecked {
-            (uint256 gameInfo, ) = retrieveAllGameInfo(_gameId);
+            
+            (uint256 gameInfo, address playerOne) = retrieveAllGameInfo(_gameId);
             uint256 game = gameInfo >> 160;
-            uint256 playerZero = uint160(gameInfo);
+            address playerZero = address(uint160(gameInfo));
+            uint256 turn = game.getTurn();
+
+            if (msg.sender != playerZero && msg.sender != playerOne) {
+                revert InvalidPlayer();
+            }
+            
+            if (msg.sender == playerZero && turn == 1) {
+                revert NotYourTurn();
+            }
+            
+            if (msg.sender == playerOne && turn == 0) {
+                revert NotYourTurn();
+            } 
 
             if (!game.isLegalMove(_move)) {
                 revert Game.IllegalMove();
             }
-            mapOfPlayerZerosAndGames[_gameId] = (game.applyMove(_move) << 160) | playerZero;
+            mapOfPlayerZerosAndGames[_gameId] = (game.applyMove(_move) << 160) | uint256(uint160(playerZero));
         }
     }
 
