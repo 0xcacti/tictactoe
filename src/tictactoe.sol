@@ -10,7 +10,7 @@ import {Game} from "src/Game.sol";
 contract TicTacToe is ERC721, Owned {
     using Game for uint256;
     using Strings for uint256;
-    
+
     uint256 currentGameId;
     mapping(uint256 => uint256) mapOfPlayerZerosAndGames;
     mapping(uint256 => address) mapOfPlayerOnes;
@@ -19,10 +19,9 @@ contract TicTacToe is ERC721, Owned {
     error NotYourTurn();
     error InvalidPlayer();
 
-
     constructor() ERC721("TicTacToe", "xoxo") Owned(msg.sender) {}
 
-    function createNewGame(address _playerZero, address _playerOne) external returns(uint256) {
+    function createNewGame(address _playerZero, address _playerOne) external returns (uint256) {
         uint256 gameId = currentGameId++;
         mapOfPlayerZerosAndGames[gameId] = uint256(uint160(_playerZero));
         mapOfPlayerOnes[gameId] = _playerOne;
@@ -30,7 +29,7 @@ contract TicTacToe is ERC721, Owned {
     }
 
     function retrieveAllGameInfo(uint256 _gameId) public view returns (uint256, address) {
-        return(mapOfPlayerZerosAndGames[_gameId], mapOfPlayerOnes[_gameId]);
+        return (mapOfPlayerZerosAndGames[_gameId], mapOfPlayerOnes[_gameId]);
     }
 
     function retrieveGame(uint256 _gameId) public view returns (uint256) {
@@ -39,7 +38,6 @@ contract TicTacToe is ERC721, Owned {
 
     function takeTurn(uint256 _gameId, uint256 _move) external {
         unchecked {
-            
             (uint256 gameInfo, address playerOne) = retrieveAllGameInfo(_gameId);
             uint256 game = gameInfo >> 160;
 
@@ -57,18 +55,16 @@ contract TicTacToe is ERC721, Owned {
             if (msg.sender != playerZero && msg.sender != playerOne) {
                 revert InvalidPlayer();
             }
-            
+
             if (msg.sender == playerZero && turn == 1) {
                 revert NotYourTurn();
             }
-            
+
             if (msg.sender == playerOne && turn == 0) {
                 revert NotYourTurn();
-            } 
-
+            }
 
             mapOfPlayerZerosAndGames[_gameId] = (game.applyMove(_move) << 160) | uint256(uint160(playerZero));
-
         }
     }
 
