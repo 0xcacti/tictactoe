@@ -39,6 +39,7 @@ contract TicTacToe is ERC721, Owned {
     function takeTurn(uint256 _gameId, uint256 _move) external {
         unchecked {
             (uint256 gameInfo, address playerOne) = retrieveAllGameInfo(_gameId);
+            address playerZero = address(uint160(gameInfo));
             uint256 game = gameInfo >> 160;
 
             if (!game.isLegalMove(_move)) {
@@ -49,7 +50,6 @@ contract TicTacToe is ERC721, Owned {
                 revert Game.GameOver();
             }
 
-            address playerZero = address(uint160(gameInfo));
             uint256 turn = game.getTurn();
 
             if (msg.sender != playerZero && msg.sender != playerOne) {

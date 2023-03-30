@@ -9,7 +9,7 @@ library Game {
 
     uint256 constant turnPosition = 0x01 << 72;
     uint256 constant turnCountPosition = 0x01 << 88;
-    
+
     uint256 constant playerOneWinsRow = 0x010101;
     uint256 constant playerTwoWinsRow = 0x020202;
     uint256 constant playerOneWinsColumn = 0x000001000001000001;
@@ -24,23 +24,20 @@ library Game {
     uint256 constant diagonalZeroMask = 0xff000000ff000000ff;
     uint256 constant diagonalOneMask = 0x0000ff00ff00ff0000;
 
-
     function applyMove(uint256 _board, uint256 _move) internal pure returns (uint256) {
-        
         uint256 mark = getTurn(_board) == 0x00 ? 0x01 : 0x02;
         _board |= (mark << (_move * 8));
         _board += turnCountPosition;
 
         if (getTurnCount(_board) > 4) {
             uint256 winner = _board.checkForWinner();
-            _board |= winner << 80; 
+            _board |= winner << 80;
         }
 
         _board ^= turnPosition;
 
         return _board;
     }
-
 
     function checkForWinner(uint256 _board) internal pure returns (uint256) {
         uint256 winner = 0;
@@ -54,13 +51,13 @@ library Game {
 
         for (uint256 i = 0; i < 3; i++) {
             uint256 row = (_board >> (i * 8 * 3)) & boardRowMask;
-            if (row  == playerOneWinsRow || row == playerTwoWinsRow) {
+            if (row == playerOneWinsRow || row == playerTwoWinsRow) {
                 winner = mark;
             }
         }
 
         for (uint256 i = 0; i < 3; i++) {
-            uint256 col = (_board  >> (i * 8)) & boardColumnMask;
+            uint256 col = (_board >> (i * 8)) & boardColumnMask;
             if (col == playerOneWinsColumn || col == playerTwoWinsColumn) {
                 winner = mark;
             }
@@ -97,14 +94,13 @@ library Game {
         return (_board & mask) >> 72;
     }
 
-    function getWinner(uint256 _board) internal pure returns(uint256 winner) {
+    function getWinner(uint256 _board) internal pure returns (uint256 winner) {
         uint256 mask = uint256(0xff << 80);
         return (_board & mask) >> 80;
     }
 
-    function getTurnCount(uint256 _board) internal pure returns(uint256 turnCount) {
+    function getTurnCount(uint256 _board) internal pure returns (uint256 turnCount) {
         uint256 mask = uint256(0xff << 88);
         return (_board & mask) >> 88;
     }
-
 }
