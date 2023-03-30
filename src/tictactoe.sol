@@ -45,7 +45,7 @@ contract TicTacToe is ERC721, Owned {
                 revert Game.IllegalMove();
             }
 
-            if (game.isGameOver()) {
+            if (game.getWinner() != 0) {
                 revert Game.GameOver();
             }
 

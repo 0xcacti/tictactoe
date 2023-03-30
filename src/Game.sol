@@ -23,17 +23,15 @@ library Game {
     uint256 constant playerOneWinsDiagTwo = 0x000001000100010000;
     uint256 constant playerTwoWinsDiagTwo = 0x000002000200020000;
 
-    // 0x0000000000000000000000000000000000000000000100000000 02 02 00 01 01 01
     function applyMove(uint256 _board, uint256 _move) internal pure returns (uint256) {
+        
         uint256 mark = getTurn(_board) == 0x00 ? 0x01 : 0x02;
         _board |= (mark << (_move * 8));
         _board += turnCountPosition;
 
-        if ((_board >> 88) > 4) {
+        if (getTurnCount(_board) > 4) {
             uint256 winner = _board.checkForWinner();
-            if (winner != 0) {
-                _board |= winner << 80; // set winner in winner position
-            }
+            _board |= winner << 80; 
         }
 
         _board ^= turnPosition; // flip turn
@@ -41,11 +39,6 @@ library Game {
         return _board;
     }
 
-    function isGameOver(uint256 _board) internal pure returns (bool) {
-        uint256 mask = uint256(0xff << 80);
-        // winnerByte : 0 => No Winner, 1 => playerZero, 2 => playerOne, 3 => tie game
-        return ((_board & mask) != 0);
-    }
 
     function checkForWinner(uint256 _board) internal pure returns (uint256) {
         uint256 winner = 0;
@@ -118,6 +111,16 @@ library Game {
     function getTurn(uint256 _board) internal pure returns (uint256 turn) {
         uint256 mask = uint256(0xff << 72);
         return (_board & mask) >> 72;
+    }
+
+    function getWinner(uint256 _board) internal pure returns(uint256 winner) {
+        uint256 mask = uint256(0xff << 80);
+        return (_board & mask) >> 80;
+    }
+
+    function getTurnCount(uint256 _board) internal pure returns(uint256 turnCount) {
+        uint256 mask = uint256(0xff << 88);
+        return (_board & mask) >> 88;
     }
 
 }
