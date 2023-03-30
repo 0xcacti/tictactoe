@@ -9,7 +9,6 @@ contract GameBehaviorTest is Test {
     TicTacToe t;
     address playerZero;
     address playerOne;
-    uint256 gameIdTest;
 
     function setUp() public {
         t = new TicTacToe();

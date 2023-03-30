@@ -8,20 +8,22 @@ library Game {
     error GameOver();
 
     uint256 constant turnPosition = 0x01 << 72;
-    uint256 constant gameOverPosition = 0x01 << 80;
     uint256 constant turnCountPosition = 0x01 << 88;
+    
     uint256 constant playerOneWinsRow = 0x010101;
     uint256 constant playerTwoWinsRow = 0x020202;
     uint256 constant playerOneWinsColumn = 0x000001000001000001;
     uint256 constant playerTwoWinsColumn = 0x000002000002000002;
-    uint256 constant boardRowMask = 0xFFFFFF;
-    uint256 constant boardColumnMask = 0x0000FF0000FF0000FF;
-    uint256 constant diagonalOneMask = 0xFF000000FF000000FF;
-    uint256 constant diagonalTwoMask = 0x0000FF00FF00FF0000;
-    uint256 constant playerOneWinsDiagOne = 0x010000000100000001;
-    uint256 constant playerTwoWinsDiagOne = 0x020000000200000002;
-    uint256 constant playerOneWinsDiagTwo = 0x000001000100010000;
-    uint256 constant playerTwoWinsDiagTwo = 0x000002000200020000;
+    uint256 constant playerOneWinsDiagZero = 0x010000000100000001;
+    uint256 constant playerTwoWinsDiagZero = 0x020000000200000002;
+    uint256 constant playerOneWinsDiagOne = 0x000001000100010000;
+    uint256 constant playerTwoWinsDiagOne = 0x000002000200020000;
+
+    uint256 constant boardRowMask = 0xffffff;
+    uint256 constant boardColumnMask = 0x0000ff0000ff0000ff;
+    uint256 constant diagonalZeroMask = 0xff000000ff000000ff;
+    uint256 constant diagonalOneMask = 0x0000ff00ff00ff0000;
+
 
     function applyMove(uint256 _board, uint256 _move) internal pure returns (uint256) {
         
@@ -34,7 +36,7 @@ library Game {
             _board |= winner << 80; 
         }
 
-        _board ^= turnPosition; // flip turn
+        _board ^= turnPosition;
 
         return _board;
     }
@@ -43,52 +45,34 @@ library Game {
     function checkForWinner(uint256 _board) internal pure returns (uint256) {
         uint256 winner = 0;
 
-        if (_board & 0xFF << 88 == 0x09 << 88) {
+        if (_board & (0xff << 88) == 0x09 << 88) {
             winner = 0x03;
             return winner;
         }
 
-        uint256 player = getTurn(_board);
-        uint256 mark = (player == 0) ? 0x01 : 0x02;
+        uint256 mark = (getTurn(_board) == 0) ? 0x01 : 0x02;
 
         for (uint256 i = 0; i < 3; i++) {
-            uint256 row = (_board & boardRowMask) << (i * 8 * 3);
-            if ((row >> (i * 8 * 3)) == playerOneWinsRow || (row >> (i * 8 * 3)) == playerTwoWinsRow) {
+            uint256 row = (_board >> (i * 8 * 3)) & boardRowMask;
+            if (row  == playerOneWinsRow || row == playerTwoWinsRow) {
                 winner = mark;
             }
         }
 
-        // 0 1 2
-        // 3 4 5
-        // 6 7 8
-
-        // 0x000000
-        // 00 00 00  00 00 00  00 00 00
-        // col1 ==  0x0000FF0000FF0000FF
-        // check columns
-
-        // diag 1 == 0x01 00 00 00 01 00 00 00 01
-        // diag 2 == 0x00 00 01 00 01 00 01 00 00
         for (uint256 i = 0; i < 3; i++) {
-            uint256 col = (_board & boardColumnMask) << (i * 8);
-            if ((col) >> (i * 8) == playerOneWinsColumn || (col) >> (i * 8) == playerTwoWinsColumn) {
+            uint256 col = (_board  >> (i * 8)) & boardColumnMask;
+            if (col == playerOneWinsColumn || col == playerTwoWinsColumn) {
                 winner = mark;
             }
         }
 
         // check diagonal 1 - generated
-        // uint256 diag1 = 0;
-        // uint256 diag2 = 0;
-        // for (uint256 i = 0; i < 3; i++) {
-        //     diag1 |= (_board & (0xff << (i * 8 * 4))) >> (i * 8 * 4);
-        //     diag2 |= (_board & (0xff << (i * 8 * 2 + 24))) >> (i * 8 * 2 + 24);
-        // }
+        uint256 diag0 = _board & diagonalZeroMask;
         uint256 diag1 = _board & diagonalOneMask;
-        uint256 diag2 = _board & diagonalTwoMask;
-        if (diag1 == playerOneWinsDiagOne || diag1 == playerTwoWinsDiagOne) {
+        if (diag0 == playerOneWinsDiagZero || diag0 == playerTwoWinsDiagZero) {
             winner = mark;
         }
-        if (diag2 == playerOneWinsDiagTwo || diag1 == playerTwoWinsDiagTwo) {
+        if (diag1 == playerOneWinsDiagOne || diag1 == playerTwoWinsDiagOne) {
             winner = mark;
         }
         return winner;
