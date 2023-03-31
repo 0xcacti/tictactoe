@@ -69,11 +69,6 @@ contract TicTacToe is ERC721, Owned {
         }
     }
 
-    function writeGame(uint256 _gameId, uint256 _gameState) public {
-        uint160 playerZero = uint160(mapOfPlayerZerosAndGames[_gameId]);
-        mapOfPlayerZerosAndGames[_gameId] = (_gameState << 160) | playerZero;
-    }
-
     function setBaseURI(string memory _baseURI) external onlyOwner {
         baseURI = _baseURI;
     }
