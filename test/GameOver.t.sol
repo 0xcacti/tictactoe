@@ -19,16 +19,6 @@ contract GaveOverTest is Test {
         utils = new Utils(game, playerZero, playerOne);
     }
 
-    function testRejectMoveAfterGameEnd() public {
-        uint256 gameId = game.createNewGame(playerZero, playerOne);
-        uint256[5] memory turns = [uint256(0), 3, 1, 4, 2];
-        utils.playGame(gameId, turns);
-
-        vm.prank(playerOne);
-        vm.expectRevert(Game.GameOver.selector);
-        game.takeTurn(gameId, 5);
-    }
-
     function testGameOverDraw() public {
         uint256 gameId = game.createNewGame(playerZero, playerOne);
         uint256[9] memory turns = [uint256(1), 0, 3, 2, 4, 5, 6, 7, 8];

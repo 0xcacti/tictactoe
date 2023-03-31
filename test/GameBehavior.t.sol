@@ -26,7 +26,7 @@ contract GameBehaviorTest is Test {
 
     function testSwitchTurnSucceeds() public {
         uint256 playerZerosTurn = 0;
-        uint256 playerOnesTurn = uint256(0x01 << 72);
+        uint256 playerOnesTurn = 1;
 
         uint256 gameId = t.createNewGame(playerZero, playerOne);
         uint256 gameBoard = t.retrieveGame(gameId);
@@ -49,6 +49,6 @@ contract GameBehaviorTest is Test {
 
     function isolateTurnByte(uint256 gameBoard) public pure returns (uint256 turn) {
         uint256 mask = uint256(0xff << 72);
-        return (gameBoard & mask);
+        return (gameBoard & mask) >> 72;
     }
 }
