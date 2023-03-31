@@ -35,7 +35,7 @@ library Game {
         }
 
         _board ^= turnPosition;
-        
+
 
         return _board;
     }
@@ -64,7 +64,6 @@ library Game {
             }
         }
 
-        // check diagonal 1 - generated
         uint256 diag0 = _board & diagonalZeroMask;
         uint256 diag1 = _board & diagonalOneMask;
         if (diag0 == playerOneWinsDiagZero || diag0 == playerTwoWinsDiagZero) {

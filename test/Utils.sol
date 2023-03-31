@@ -117,6 +117,6 @@ contract Utils is Test {
         uint256 gameBoard = game.retrieveGame(gameId);
         uint256 mask = uint256(0xff << 72);
  
-        return (gameBoard & mask);
+        return (gameBoard & mask) >> 72;
     }
 }
