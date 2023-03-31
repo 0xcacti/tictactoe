@@ -35,6 +35,7 @@ library Game {
         }
 
         _board ^= turnPosition;
+        
 
         return _board;
     }
