@@ -1,20 +1,35 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import { Base64 } from "src/Base64.sol";
-import { Game } from "src/Game.sol";
-import "openzeppelin-contracts/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
+import { Chess } from "./Chess.sol";
+import { Base64 } from "./Base64.sol";
 
-/// @title A library that generates HTML art for TicTacToe
-/// @author 0xcacti
+/// @title A library that generates HTML art for fiveoutofnine (an on-chain 6x6 chess engine)
+/// @author fiveoutofnine
 /// @notice Below details how the metadata and art are generated:
-
 /// ==============================================Name==============================================
 /// Expressed as Python3 f-strings below, token names generate as
-///                     ``f"0xcacti - Game #{game_id}, Result #{result}"''.
+///                     ``f"fiveoutofnine - Game #{game_id}, Move #{move_id}"''.
 /// ==========================================Description===========================================
-/// Token descriptions states player addresses and outcome in plain English. 
+/// Token descriptions describe white's move in algebraic notation and black's move in algebraic
+/// notation. If white's move results in checkmating black or a stalemate, the description will say
+/// black resigned (for simplicity, stalemates are treated as checkmates). Since the engine always
+/// plays black, and the player always plays white, white is indicated as ``Player'', and black is
+/// indicated as ``fiveoutofnine''. Additionally, for every non game-ending turn, a string graphic
+/// is generated after the moves' descriptions. An example:
+///                             Player plays e4 rook captures e5 queen.
+///                             6 · · ♜ · ♚ ♜
+///                             5 · ♟ · · ♖ ♟
+///                             4 ♟ ♙ ♟ ♙ * ♙
+///                             3 ♙ · ♙ · · ·
+///                             2 · · · · ♖ ·
+///                             1 · ♘ · ♔ · ·
+///                               a b c d e f
+///
+///                             fiveoutofnine resigns.
+/// * indicates the square the piece moved from.
 /// ==============================================Art===============================================
 /// The art is generated as HTML code with in-line CSS (0 JS) according to the following table:
 ///  | Property       | Name      | Value/Description                       | Determination       |
@@ -76,32 +91,156 @@ import "openzeppelin-contracts/contracts/utils/Strings.sol";
 ///  |     * the fourth 24 bits represent the top face's color,                                   |
 ///  |     * and the last 24 bits represent the bits' color.                                      |
 ///  | [^4]: Bit border is omitted when dimension is 12 x 12.                                     |
-
-library TicTacToeArt {
+library fiveoutofnineART {
     using Strings for uint256;
-    using Game for uint256;
+    using Chess for uint256;
 
+    string internal constant SVG_STYLES = "--n:calc((394px - (var(--b) - 1)*var(--c))/var(--b));--o"
+        ":calc(106px + var(--n));--p:calc(var(--a)/2)}section{height:var(--a);width:var(--a);backgr"
+        "ound:var(--e);position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden}.c{height:0;"
+        "width:0;position:absolute;transition:0.25s}.c:hover{transform:translate(0px,-64px);transit"
+        "ion:0.25s}.c>*{height:var(--n);width:var(--n);border-bottom:4px solid black;border-right:4"
+        "px solid black;border-left:1px solid black;border-top:1px solid black;transform-origin:0 0"
+        ";position:relative;box-sizing:border-box}.c>*:nth-child(1){width:var(--d);background-color"
+        ":var(--f);transform:rotate(90deg)skewX(-30deg)scaleY(0.864)}.c>*:nth-child(2){height:var(-"
+        "-d);bottom:var(--n);background-color:var(--g);transform:rotate(-30deg)skewX(-30deg)scaleY("
+        "0.864)}#h{background-color:var(--h)}#i{background-color:var(--i)}.c>*:nth-child(3){bottom:"
+        "calc(var(--d) + var(--n));background-color:var(--h);display:grid;grid-template-columns:rep"
+        "eat(";
     bytes32 internal constant HEXADECIMAL_DIGITS = "0123456789ABCDEF";
     bytes32 internal constant FILE_NAMES = "abcdef";
 
-    /// @notice Takes in data for a given TicTacToe NFT and outputs its metadata in JSON form.
-    /// Refer to {TicTacToeArt} for details.
+    /// @notice Takes in data for a given fiveoutofnine NFT and outputs its metadata in JSON form.
+    /// Refer to {fiveoutofnineART} for details.
     /// @dev The output is base 64-encoded.
-    /// @param gameBoard A bitpacked uint256 representing the game board (see Game.sol).
-    /// @param playerZero The address of the player who plays as x
-    /// @param playerOne The address of the player who plays as o
+    /// @param _internalId A bitpacked uint256 where the first 128 bits are the game ID, and the
+    /// last 128 bits are the move ID within the game.
+    /// @param _move A struct with information about the player's move and engine's response (see
+    /// {Chess-Move}).
     /// @return Base 64-encoded JSON of metadata generated from `_internalId` and `_move`.
-    function getMetadata(uint256 gameId, uint256 gameBoard, address playerZero, address playerOne)
+    function getMetadata(uint256 _internalId, Chess.Move memory _move)
         internal pure
         returns (string memory)
     {
         string memory description;
         string memory image;
         string memory attributes;
- 
+        uint256 whiteMove;
+        uint256 blackMove;
+        uint256 boardAfterWhiteMove;
+        uint256 boardAfterBlackMove;
+        bool whiteCaptures;
+        bool blackCaptures;
+        uint256 depth;
 
+        {
+            whiteMove = (_move.metadata >> 0xC) & 0xFFF;
+            blackMove = _move.metadata & 0xFFF;
 
+            boardAfterWhiteMove = _move.board.applyMove(whiteMove);
+            boardAfterBlackMove = boardAfterWhiteMove.applyMove(blackMove);
 
+            whiteCaptures = _move.board.isCapture(
+                _move.board >> ((whiteMove & 0x3F) << 2)
+            );
+            blackCaptures = boardAfterWhiteMove.isCapture(
+                boardAfterWhiteMove >> ((blackMove & 0x3F) << 2)
+            );
+
+            depth = _move.metadata >> 0x18;
+        }
+
+        {
+            uint256 numSquares;
+            {
+                uint256 whitePieceType = (_move.board >> ((whiteMove >> 6) << 2)) & 7;
+                uint256 blackPieceType = (boardAfterWhiteMove >> ((blackMove >> 6) << 2)) & 7;
+
+                if (whitePieceType == 1) numSquares = 6;
+                else if (whitePieceType == 3) numSquares = 2;
+                else if (whitePieceType == 4) numSquares = 4;
+                else if (whitePieceType == 5) numSquares = 12;
+                else numSquares = 1;
+                if (blackPieceType == 2) numSquares = 3;
+            }
+
+            uint256 seed = uint256(
+                keccak256(abi.encodePacked(_internalId, boardAfterBlackMove, _move.metadata))
+            );
+
+            (image, attributes) = getImage(
+                boardAfterBlackMove,
+                numSquares,
+                seed,
+                whiteCaptures || blackCaptures
+            );
+        }
+
+        // Lots of unusual identation and braces to get around the 16 local variable limitation.
+        {
+            description = string(
+                abi.encodePacked(
+                    "---\\n\\n**Player** plays **`",
+                    indexToPosition(whiteMove >> 6, true),
+                    "` ",
+                    getPieceName((_move.board >> ((whiteMove >> 6) << 2)) & 7),
+                    "**",
+                    whiteCaptures
+                        ? " captures "
+                        : " to ",
+                    "**`",
+                    indexToPosition(whiteMove & 0x3F, true)
+                )
+            );
+        }
+        {
+            description = string(
+                abi.encodePacked(
+                    description,
+                    "`",
+                    whiteCaptures
+                        ? " "
+                        : "",
+                    whiteCaptures
+                        ? getPieceName((_move.board >> ((whiteMove & 0x3F) << 2)) & 7)
+                        : "",
+                    "**.\\n\\n",
+                    drawMove(boardAfterWhiteMove, whiteMove >> 6),
+                    "\\n\\n---\\n\\n**fiveoutofnine** "
+                )
+            );
+        }
+
+        {
+            if (blackMove == 0) {
+                description = string(abi.encodePacked(description, "**resigns**."));
+            } else {
+                description = string(
+                    abi.encodePacked(
+                        description,
+                        "responds with **`",
+                        indexToPosition(blackMove >> 6, false),
+                        "` ",
+                        getPieceName((boardAfterWhiteMove >> ((blackMove >> 6) << 2)) & 7),
+                        "**",
+                        blackCaptures
+                            ? " captures "
+                            : " to ",
+                        "**`",
+                        indexToPosition(blackMove & 0x3F, false),
+                        "`",
+                        blackCaptures
+                            ? " "
+                            : "",
+                        blackCaptures
+                            ? getPieceName((boardAfterWhiteMove>> ((blackMove & 0x3F) << 2)) & 7)
+                            : "",
+                        "**.\\n\\n",
+                        drawMove(boardAfterBlackMove, blackMove >> 6)
+                    )
+                );
+            }
+        }
 
         return string(
             abi.encodePacked(
@@ -109,16 +248,16 @@ library TicTacToeArt {
                 Base64.encode(
                     abi.encodePacked(
                         '{"name":"Game #',
-                        Strings.toString(gameId),
-                        ", Result - ",
-                        Strings.toString(),
+                        Strings.toString(_internalId >> 0x80),
+                        ", Move #",
+                        Strings.toString(uint128(_internalId)),
                         '",'
                         '"description":"',
                         description,
-                        '","data:image/png;base64,',
+                        '","animation_url":"data:text/html;base64,',
                         image,
-                        '","attributes":[{"trait_type":"ColorScheme","value":',
-                        colorScheme.toString(),
+                        '","attributes":[{"trait_type":"Depth","value":',
+                        depth.toString(),
                         "},",
                         attributes,
                         "]}"
@@ -128,12 +267,15 @@ library TicTacToeArt {
         );
     }
 
-    /// @notice Generates the HTML image and its attributes for a given board and seed
+    /// @notice Generates the HTML image and its attributes for a given board/seed according to the
+    /// table described in {fiveoutofnineART}.
     /// @dev The output of the image is base 64-encoded.
-    /// @param gameBoard The end state of the tic-tac-toe board.
-    /// @param _seed A hash of the game ID, board position, and metadata.
+    /// @param _board The board after the player's and engine's move are played.
+    /// @param _numSquares The dimension of the board.
+    /// @param _seed A hash of the game ID, move ID, board position, and metadata.
+    /// @param _pieceCaptured Whether or not any piees were captured.
     /// @return Base 64-encoded image (in HTML) and its attributes.
-    function getImage(uint256 _board, uint256 _seed)
+    function getImage(uint256 _board, uint256 _numSquares, uint256 _seed, bool _pieceCaptured)
         internal pure
         returns (string memory, string memory)
     {
@@ -451,6 +593,61 @@ library TicTacToeArt {
         return string(abi.encodePacked(pillar, "</div></div>"));
     }
 
+    /// @notice Draws out a move being played out on a board position as a string with unicode
+    /// characters to represent pieces. Files and rows are labeled with standard algebraic
+    /// notation. For example:
+    /// ```
+    /// 6 ♜ ♝ ♛ ♚ ♝ ♜
+    /// 5 ♟ ♟ ♟ ♟ ♟ ♟
+    /// 4 · · · · · ·
+    /// 3 · · ♙ · · ·
+    /// 2 ♙ ♙ * ♙ ♙ ♙
+    /// 1 ♖ ♘ ♕ ♔ ♘ ♖
+    ///  a b c d e f
+    /// ```
+    /// * indicates the square the piece moved from.
+    /// @param _board The board the move is played on.
+    /// @param _fromIndex The from index of the move.
+    /// @return The string showing the move played out on the board.
+    function drawMove(uint256 _board, uint256 _fromIndex) internal pure returns (string memory) {
+        string memory boardString = "```\\n";
+
+        if (_board & 1 == 0) _board = _board.rotate();
+        else _fromIndex = ((7 - (_fromIndex >> 3)) << 3) + (7 - (_fromIndex & 7));
+
+        for (
+            uint256 index = 0x24A2CC34E4524D455665A6DC75E8628E4966A6AAECB6EC72CF4D76;
+            index != 0;
+            index >>= 6
+        ) {
+            uint256 indexToDraw = index & 0x3F;
+            boardString = string(
+                abi.encodePacked(
+                    boardString,
+                    indexToDraw & 7 == 6
+                        ? string(abi.encodePacked(Strings.toString((indexToDraw >> 3)), " "))
+                        : "",
+                    indexToDraw == _fromIndex
+                        ? "*"
+                        : getPieceChar((_board >> (indexToDraw << 2)) & 0xF),
+                    indexToDraw & 7 == 1 && indexToDraw != 9
+                        ? "\\n"
+                        : indexToDraw != 9
+                            ? " "
+                            : ""
+                )
+            );
+        }
+
+        boardString = string(
+            abi.encodePacked(
+                boardString,
+                "\\n  a b c d e f\\n```"
+                )
+            );
+
+        return boardString;
+    }
 
     /// @notice Computes the complement of 24-bit colors.
     /// @param _color A 24-bit color.
@@ -498,5 +695,57 @@ library TicTacToeArt {
                 HEXADECIMAL_DIGITS[_integer & 0xF]
             )
         );
+    }
+
+    /// @notice Maps piece type to its corresponding name.
+    /// @param _type A piece type defined in {Chess}.
+    /// @return The name corresponding to `_type`.
+    function getPieceName(uint256 _type) internal pure returns (string memory) {
+        if (_type == 1) return "pawn";
+        else if (_type == 2) return "bishop";
+        else if (_type == 3) return "rook";
+        else if (_type == 4) return "knight";
+        else if (_type == 5) return "queen";
+        return "king";
+    }
+
+    /// @notice Converts a position's index to algebraic notation.
+    /// @param _index The index of the position.
+    /// @param _isWhite Whether the piece is being determined for a white piece or not.
+    /// @return The algebraic notation of `_index`.
+    function indexToPosition(uint256 _index, bool _isWhite) internal pure returns (string memory) {
+        unchecked {
+            return _isWhite
+                ? string(
+                    abi.encodePacked(
+                        FILE_NAMES[6 - (_index & 7)],
+                        Strings.toString(_index >> 3))
+                )
+                : string(
+                    abi.encodePacked(
+                        FILE_NAMES[(_index & 7) - 1],
+                        Strings.toString(7 - (_index >> 3))
+                    )
+                );
+        }
+    }
+
+    /// @notice Maps pieces to its corresponding unicode character.
+    /// @param _piece A piece.
+    /// @return The unicode character corresponding to `_piece`. It returns ``.'' otherwise.
+    function getPieceChar(uint256 _piece) internal pure returns (string memory) {
+        if (_piece == 1) return unicode"♟";
+        if (_piece == 2) return unicode"♝";
+        if (_piece == 3) return unicode"♜";
+        if (_piece == 4) return unicode"♞";
+        if (_piece == 5) return unicode"♛";
+        if (_piece == 6) return unicode"♚";
+        if (_piece == 9) return unicode"♙";
+        if (_piece == 0xA) return unicode"♗";
+        if (_piece == 0xB) return unicode"♖";
+        if (_piece == 0xC) return unicode"♘";
+        if (_piece == 0xD) return unicode"♕";
+        if (_piece == 0xE) return unicode"♔";
+        return unicode"·";
     }
 }
