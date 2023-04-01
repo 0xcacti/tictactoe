@@ -254,7 +254,7 @@ library fiveoutofnineART {
                         '",'
                         '"description":"',
                         description,
-                        '","animation_url":"data:text/html;base64,',
+                        '","image":"data:text/html;base64,',
                         image,
                         '","attributes":[{"trait_type":"Depth","value":',
                         depth.toString(),

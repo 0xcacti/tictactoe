@@ -16,66 +16,10 @@ import "openzeppelin-contracts/contracts/utils/Strings.sol";
 /// ==========================================Description===========================================
 /// Token descriptions states player addresses and outcome in plain English. 
 /// ==============================================Art===============================================
-/// The art is generated as HTML code with in-line CSS (0 JS) according to the following table:
-///  | Property       | Name      | Value/Description                       | Determination       |
-///  | ============== | ========= | ======================================= | =================== |
-///  | Dimension      | 1 × 1     | 1 × 1 pillars                           | Player moved king   |
-///  | (6 traits)     | 2 × 2     | 2 × 2 pillars                           | Player moved rook   |
-///  |                | 3 × 3     | 3 × 3 pillars                           | Engine moved bishop |
-///  |                | 4 × 4     | 4 × 4 pillars                           | Player moved knight |
-///  |                | 6 × 6     | 6 × 6 pillars                           | Player moved pawn   |
-///  |                | 12 × 12   | 12 × 12 pillars                         | Player moved queen  |
-///  | -------------- | --------- | --------------------------------------- | ------------------- |
-///  | Height         | Plane     | 8px pillar height                       | 1 / 64 chance[^0]   |
-///  | (5 traits)     | 1/4       | 98px pillar height                      | 10 / 64 chance[^0]  |
-///  |                | 1/2       | 197px pillar height                     | 10 / 64 chance[^0]  |
-///  |                | Cube      | 394px pillar height                     | 40 / 64 chance[^0]  |
-///  |                | Infinite  | 1000px pillar height                    | 3 / 64 chance[^0]   |
-///  | -------------- | --------- | --------------------------------------- | ------------------- |
-///  | Gap[^1]        | None      | 0px gap between the pillars             | 4 / 16 chance[^0]   |
-///  | (4 traits)     | Narrow    | 2px gap between the pillars             | 9 / 16 chance[^0]   |
-///  |                | Wide      | 12px gap between the pillars            | 2 / 16 chance[^0]   |
-///  |                | Ultrawide | 24px gap between the pillars            | 1 / 16 chance[^0]   |
-///  | -------------- | --------- | --------------------------------------- | ------------------- |
-///  | Color          | Uniform   | All faces are the same color            | 7 / 32 chance[^0]   |
-///  | Generation[^2] | Shades    | Faces get darker anticlockwise          | 7 / 32 chance[^0]   |
-///  | (6 traits)     | Tints     | Faces get lighter anticlockwise         | 7 / 32 chance[^0]   |
-///  |                | Eclipse   | Left face is white; black face is black | 3 / 32 chance[^0]   |
-///  |                | Void      | Left and right face are black           | 1 / 32 chance[^0]   |
-///  |                | Curated   | One of 8 color themes (see below)       | 7 / 32 chance[^0]   |
-///  | -------------- | --------- | --------------------------------------- | ------------------- |
-///  | Color          | Nord      | 0x8FBCBBEBCB8BD087705E81ACB48EAD        | 1 / 8 chance[^0]    |
-///  | Theme[^3]      | B/W       | 0x000000FFFFFFFFFFFFFFFFFF000000        | 1 / 8 chance[^0]    |
-///  | (8 traits)     | Candycorn | 0x0D3B66F4D35EEE964BFAF0CAF95738        | 1 / 8 chance[^0]    |
-///  |                | RGB       | 0xFFFF0000FF000000FFFF0000FFFF00        | 1 / 8 chance[^0]    |
-///  |                | VSCode    | 0x1E1E1E569CD6D2D1A2BA7FB54DC4AC        | 1 / 8 chance[^0]    |
-///  |                | Neon      | 0x00FFFFFFFF000000FF00FF00FF00FF        | 1 / 8 chance[^0]    |
-///  |                | Jungle    | 0xBE3400015045020D22EABAACBE3400        | 1 / 8 chance[^0]    |
-///  |                | Corn      | 0xF9C233705860211A28346830F9C233        | 1 / 8 chance[^0]    |
-///  | -------------- | --------- | --------------------------------------- | ------------------- |
-///  | Bit Border[^4] | True      | The bits have a 1px solid black border  | Any pieces captured |
-///  | (2 traits)     | False     | The bits don't have any border          | No pieces captuered |
-///  | ============== | ========= | ======================================= | =================== |
-///  | [^0]: Determined from `_seed`.                                                             |
-///  | [^1]: Gap is omitted when dimension is 1 x 1.                                              |
-///  | [^2]: The first 5 color generation traits are algorithms. A base color is generated from   |
-///  | `seed`, and the remaining colors are generated according to the selected algorithm. The    |
-///  | color of the bits is always the complement of the randomly generated base color, and the   |
-///  | background color depends on the algorithm:                                                 |
-///  |     * Uniform: same as the base color;                                                     |
-///  |     * Shades: darkest shade of the base color;                                             |
-///  |     * Tints: lightest shade of the base color;                                             |
-///  |     * Eclipse: same as the base color;                                                     |
-///  |     * Void: complement of the base color.                                                  |
-///  | If the selected color generation trait is "Curated," 1 of 8 pre-curated themes is randomly |
-///  | selected.                                                                                  |
-///  | [^3]: The entries in the 3rd column are bitpacked integers where                           |
-///  |     * the first 24 bits represent the background color,                                    |
-///  |     * the second 24 bits represent the left face's color,                                  |
-///  |     * the third 24 bits represent the right face's color,                                  |
-///  |     * the fourth 24 bits represent the top face's color,                                   |
-///  |     * and the last 24 bits represent the bits' color.                                      |
-///  | [^4]: Bit border is omitted when dimension is 12 x 12.                                     |
+/// The art is generated as HTML code with in-line CSS (0 JS) where color scheme is chosen off of 
+/// a seed value. The art is base 64-encoded and stored in the metadata.
+
+
 
 library TicTacToeArt {
     using Strings for uint256;
@@ -95,31 +39,38 @@ library TicTacToeArt {
         internal pure
         returns (string memory)
     {
+       // you need to resolve the fact that gameId does not decode which freaking player won and therefore which nft you are minting
         string memory description;
         string memory image;
         string memory attributes;
+        string memory player;
+        
+        {
+            uint256 winner = gameBoard.getWinner()
+            // last player to move is returned by 
+            address player;
+        }
+
+
+
  
-
-
-
-
+        // return the ERC721 Metadata JSON Schema
         return string(
             abi.encodePacked(
                 "data:application/json;base64,",
                 Base64.encode(
                     abi.encodePacked(
+                       
                         '{"name":"Game #',
                         Strings.toString(gameId),
-                        ", Result - ",
-                        Strings.toString(),
-                        '",'
+                        ", - Player ",
+                        Strings.toString(player),
+                        'Outcome",',
                         '"description":"',
                         description,
-                        '","data:image/png;base64,',
+                        '"image_url:,"data:image/png;base64,',
                         image,
-                        '","attributes":[{"trait_type":"ColorScheme","value":',
-                        colorScheme.toString(),
-                        "},",
+                        '","attributes":[',
                         attributes,
                         "]}"
                     )
