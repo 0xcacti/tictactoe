@@ -19,3 +19,9 @@ Each game is represented as one uint256.  The bytes are used as follows:
 
 You could represtent many games per board, however, due to the need to track player addresses, this is less efficient. 
 
+Art is generated based on final state of the game using a random color scheme.  Art follows the following JSON metadata schema 
+
+{
+
+}
+
