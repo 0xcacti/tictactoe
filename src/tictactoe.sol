@@ -4,6 +4,7 @@ pragma solidity ^0.8.13;
 import "solmate/tokens/ERC721.sol";
 import "solmate/auth/Owned.sol";
 import "openzeppelin-contracts/contracts/utils/Strings.sol";
+import {TicTacToeArt} from "src/TicTacToeArt.sol";
 
 import {Game} from "src/Game.sol";
 
@@ -79,6 +80,9 @@ contract TicTacToe is ERC721, Owned {
     }
 
     function _tokenURI(uint256 _tokenId) public view returns (string memory) {
-        return "";
+        (uint256 gameAndPlayerZero, address playerOne) = retrieveAllGameInfo(_tokenId);
+        uint256 game = gameAndPlayerZero >> 160;
+        address playerZero = address(uint160(gameAndPlayerZero));
+        return TicTacToeArt.getMetadata(_tokenId, game, playerZero, playerOne);
     }
 }

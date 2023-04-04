@@ -44,11 +44,25 @@ library TicTacToeArt {
         string memory image;
         string memory attributes;
         string memory player;
+        string memory gameIdString;
         
         {
-            uint256 winner = gameBoard.getWinner()
-            // last player to move is returned by 
-            address player;
+            uint256 turn = gameBoard.getTurn();
+            // last player to move is returned by getTurn 
+            address playerAddress = turn == 0 ? playerZero : playerOne;
+            player = Strings.toHexString(uint160(playerAddress), 20);
+            gameIdString = Strings.toString(gameId);
+            string memory result;
+            uint256 winner = gameBoard.getWinner();
+            if (winner == 3) {
+                result = "Draw";
+            } else if (winner == 1) {
+                result = "Player Zero Wins!";
+            } else {
+                result = "Player One Wins";
+            }
+            description = string(abi.encodePacked('"Game #', gameIdString, " - Player 0: ", Strings.toHexString(uint160(playerZero), 20), " vs Player 1: ", Strings.toHexString(uint160(playerOne), 20), " - Result: ", result, '",'));
+
         }
 
 
@@ -56,27 +70,27 @@ library TicTacToeArt {
  
         // return the ERC721 Metadata JSON Schema
         return string(
-            abi.encodePacked(
-                "data:application/json;base64,",
-                Base64.encode(
+            // abi.encodePacked(
+            //     "data:application/json;base64,",
+            //     Base64.encode(
                     abi.encodePacked(
                        
                         '{"name":"Game #',
-                        Strings.toString(gameId),
-                        ", - Player ",
-                        Strings.toString(player),
+                        gameIdString,
+                        " - Player ",
+                        player,
                         'Outcome",',
-                        '"description":"',
+                        '"description":',
                         description,
-                        '"image_url:,"data:image/png;base64,',
+                        '"image_url:""data:image/png;base64,',
                         image,
                         '","attributes":[',
                         attributes,
                         "]}"
                     )
-                )
-            )
-        );
+                );
+        //     )
+        // );
     }
 
     /// @notice Generates the HTML image and its attributes for a given board and seed
