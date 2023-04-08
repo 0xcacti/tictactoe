@@ -6,6 +6,7 @@ library Game {
 
     error IllegalMove();
     error GameOver();
+    error GameNotOver();
 
     uint256 constant turnPosition = 0x01 << 72;
     uint256 constant turnCountPosition = 0x01 << 88;
@@ -35,7 +36,6 @@ library Game {
         }
 
         _board ^= turnPosition;
-
 
         return _board;
     }

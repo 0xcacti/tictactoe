@@ -18,8 +18,6 @@ contract Utils is Test {
     }
 
     function playGame(uint256 gameId, uint256[1] memory turns) public {
-
-        
         for (uint256 i = 0; i < turns.length; i++) {
             currentPlayer = (isolateTurnByte(gameId) == 0) ? playerZero : playerOne;
             vm.prank(currentPlayer);
@@ -28,8 +26,6 @@ contract Utils is Test {
     }
 
     function playGame(uint256 gameId, uint256[2] memory turns) public {
-
-        
         for (uint256 i = 0; i < turns.length; i++) {
             currentPlayer = (isolateTurnByte(gameId) == 0) ? playerZero : playerOne;
             vm.prank(currentPlayer);
@@ -38,8 +34,6 @@ contract Utils is Test {
     }
 
     function playGame(uint256 gameId, uint256[3] memory turns) public {
-
-        
         for (uint256 i = 0; i < turns.length; i++) {
             currentPlayer = (isolateTurnByte(gameId) == 0) ? playerZero : playerOne;
             vm.prank(currentPlayer);
@@ -48,8 +42,6 @@ contract Utils is Test {
     }
 
     function playGame(uint256 gameId, uint256[4] memory turns) public {
-
-        
         for (uint256 i = 0; i < turns.length; i++) {
             currentPlayer = (isolateTurnByte(gameId) == 0) ? playerZero : playerOne;
             vm.prank(currentPlayer);
@@ -58,9 +50,7 @@ contract Utils is Test {
     }
 
     function playGame(uint256 gameId, uint256[5] memory turns) public {
-
         for (uint256 i = 0; i < turns.length; i++) {
-
             currentPlayer = (isolateTurnByte(gameId) == 0) ? playerZero : playerOne;
             vm.prank(currentPlayer);
             game.takeTurn(gameId, turns[i]);
@@ -68,8 +58,6 @@ contract Utils is Test {
     }
 
     function playGame(uint256 gameId, uint256[6] memory turns) public {
-
-        
         for (uint256 i = 0; i < turns.length; i++) {
             currentPlayer = (isolateTurnByte(gameId) == 0) ? playerZero : playerOne;
             vm.prank(currentPlayer);
@@ -78,8 +66,6 @@ contract Utils is Test {
     }
 
     function playGame(uint256 gameId, uint256[7] memory turns) public {
-
-        
         for (uint256 i = 0; i < turns.length; i++) {
             currentPlayer = (isolateTurnByte(gameId) == 0) ? playerZero : playerOne;
             vm.prank(currentPlayer);
@@ -88,8 +74,6 @@ contract Utils is Test {
     }
 
     function playGame(uint256 gameId, uint256[8] memory turns) public {
-
-        
         for (uint256 i = 0; i < turns.length; i++) {
             currentPlayer = (isolateTurnByte(gameId) == 0) ? playerZero : playerOne;
             vm.prank(currentPlayer);
@@ -98,8 +82,6 @@ contract Utils is Test {
     }
 
     function playGame(uint256 gameId, uint256[9] memory turns) public {
-
-        
         for (uint256 i = 0; i < turns.length; i++) {
             currentPlayer = (isolateTurnByte(gameId) == 0) ? playerZero : playerOne;
             vm.prank(currentPlayer);
@@ -116,7 +98,7 @@ contract Utils is Test {
     function isolateTurnByte(uint256 gameId) public view returns (uint256 turn) {
         uint256 gameBoard = game.retrieveGame(gameId);
         uint256 mask = uint256(0xff << 72);
- 
+
         return (gameBoard & mask) >> 72;
     }
 }

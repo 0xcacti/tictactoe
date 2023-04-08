@@ -27,11 +27,7 @@ contract GaveOverTest is Test {
     }
 
     function testRowWinConditions() public {
-        uint256[5][3] memory gameTurns = [
-            [uint256(0), 3, 1, 4, 2],
-            [uint256(3), 0, 4, 1, 5],
-            [uint256(6), 0, 7, 1, 8]
-        ];
+        uint256[5][3] memory gameTurns = [[uint256(0), 3, 1, 4, 2], [uint256(3), 0, 4, 1, 5], [uint256(6), 0, 7, 1, 8]];
         for (uint256 i = 0; i < gameTurns.length; i++) {
             uint256 gameId = game.createNewGame(playerZero, playerOne);
             utils.playGame(gameId, gameTurns[i]);
@@ -40,11 +36,7 @@ contract GaveOverTest is Test {
     }
 
     function testColumnWinConditions() public {
-        uint256[5][3] memory gameTurns = [
-            [uint256(0), 1, 3, 4, 6],
-            [uint256(1), 0, 4, 3, 7],
-            [uint256(2), 0, 5, 3, 8]
-        ];
+        uint256[5][3] memory gameTurns = [[uint256(0), 1, 3, 4, 6], [uint256(1), 0, 4, 3, 7], [uint256(2), 0, 5, 3, 8]];
         for (uint256 i = 0; i < gameTurns.length; i++) {
             uint256 gameId = game.createNewGame(playerZero, playerOne);
             utils.playGame(gameId, gameTurns[i]);
@@ -53,15 +45,11 @@ contract GaveOverTest is Test {
     }
 
     function testDiagonalWinConditions() public {
-        uint256[5][2] memory gameTurns = [
-            [uint256(0), 1, 4, 3, 8],
-            [uint256(2), 0, 4, 1, 6]
-        ];
+        uint256[5][2] memory gameTurns = [[uint256(0), 1, 4, 3, 8], [uint256(2), 0, 4, 1, 6]];
         for (uint256 i = 0; i < gameTurns.length; i++) {
             uint256 gameId = game.createNewGame(playerZero, playerOne);
             utils.playGame(gameId, gameTurns[i]);
             assertEq(utils.isolateWinnerByte(gameId), 1);
         }
     }
-
 }

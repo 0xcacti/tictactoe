@@ -12,13 +12,11 @@ contract InvalidPlayTest is Test {
     address playerOne;
     Utils utils;
 
-
     function setUp() public {
         game = new TicTacToe();
         playerZero = 0x4675C7e5BaAFBFFbca748158bEcBA61ef3b0a263;
         playerOne = 0xFeebabE6b0418eC13b30aAdF129F5DcDd4f70CeA;
         utils = new Utils(game, playerZero, playerOne);
-
     }
 
     function testRejectMoveAfterGameEnd() public {
