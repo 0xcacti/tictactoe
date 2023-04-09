@@ -18,10 +18,10 @@ contract GameBehaviorTest is Test {
 
     function testNewGameHasProperInitialState() public {
         uint256 gameId = t.createNewGame(playerZero, playerOne);
-        (uint256 playerZeroAndGame, address inGamePlayerOne) = t.retrieveAllGameInfo(gameId);
-        assertEq(playerZeroAndGame >> 160, 0);
-        assertEq(address(uint160(playerZeroAndGame)), playerZero);
-        assertEq(inGamePlayerOne, playerOne);
+        (uint256 game, address _playerZero, address _playerOne) = t.retrieveAllGameInfo(gameId);
+        assertEq(game, 0);
+        assertEq(_playerZero, playerZero);
+        assertEq(_playerOne, playerOne);
     }
 
     function testSwitchTurnSucceeds() public {

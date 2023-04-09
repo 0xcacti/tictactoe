@@ -29,10 +29,11 @@ contract TicTacToe is ERC721, Owned {
     constructor() ERC721("TicTacToe", "xoxo") Owned(msg.sender) {}
 
     function createNewGame(address _playerZero, address _playerOne) external returns (uint256) {
-        gameId = gameId + 2;
-        mapOfPlayerZerosAndGames[gameId] = uint256(uint160(_playerZero));
-        mapOfPlayerOnes[gameId] = _playerOne;
-        return gameId;
+        uint256 currentGameId = gameId;
+        gameId += 2;
+        mapOfPlayerZerosAndGames[currentGameId] = uint256(uint160(_playerZero));
+        mapOfPlayerOnes[currentGameId] = _playerOne;
+        return currentGameId;
     }
 
     function retrieveAllGameInfo(uint256 _gameId) public view returns (uint256, address, address) {
@@ -46,9 +47,7 @@ contract TicTacToe is ERC721, Owned {
 
     function takeTurn(uint256 _gameId, uint256 _move) external {
         unchecked {
-            (uint256 gameInfo, address playerOne) = retrieveAllGameInfo(_gameId);
-            address playerZero = address(uint160(gameInfo));
-            uint256 game = gameInfo >> 160;
+            (uint256 game, address playerZero, address playerOne) = retrieveAllGameInfo(_gameId);
 
             if (!game.isLegalMove(_move)) {
                 revert Game.IllegalMove();
@@ -119,8 +118,8 @@ contract TicTacToe is ERC721, Owned {
 
     function _tokenURI(uint256 _tokenId) public view returns (string memory) {
         uint256 gameIdComponent = _tokenId >> 160;
-        uint256 _gameId = (gameIdComonent % 2 == 0) ? gameIdComponent : gameIdComponent - 1;
-        (uint256 game, address playerZero, address playerOne) = retrieveAllGameInfo(gameId);
-        return TicTacToeArt.getMetadata(_tokenId, game, playerZero, playerOne);
+        uint256 _gameId = (gameIdComponent % 2 == 0) ? gameIdComponent : gameIdComponent - 1;
+        (uint256 game, address playerZero, address playerOne) = retrieveAllGameInfo(_gameId);
+        return TicTacToeArt.getMetadata(_gameId, _tokenId, game, playerZero, playerOne);
     }
 }

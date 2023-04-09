@@ -23,7 +23,9 @@ contract InvalidPlayTest is Test {
         uint256 gameId = game.createNewGame(playerZero, playerOne);
         uint256[9] memory turns = [uint256(1), 0, 3, 2, 4, 5, 6, 7, 8];
         utils.playGame(gameId, turns);
-        string memory meow = game.tokenURI(gameId);
+        console.log(gameId);
+        uint256 tokenId = (gameId << 160) | uint256(uint160(playerZero));
+        string memory meow = game.tokenURI(tokenId);
         console2.log(meow);
     }
 }
