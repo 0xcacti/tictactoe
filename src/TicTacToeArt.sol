@@ -4,6 +4,8 @@ pragma solidity ^0.8.17;
 import {Base64} from "src/Base64.sol";
 import {Game} from "src/Game.sol";
 import "openzeppelin-contracts/contracts/utils/Strings.sol";
+import "forge-std/Test.sol";
+
 
 /// @title A library that generates HTML art for TicTacToe
 /// @author 0xcacti
@@ -55,7 +57,7 @@ library TicTacToeArt {
     /// @return Base 64-encoded JSON of metadata generated from `_internalId` and `_move`.
     function getMetadata(uint256 gameId, uint256 tokenId, uint256 gameBoard, address playerZero, address playerOne)
         internal
-        pure
+        view
         returns (string memory)
     {
         // you need to resolve the fact that gameId does not decode which freaking player won and therefore which nft you are minting
@@ -74,7 +76,10 @@ library TicTacToeArt {
 
 
         
-        (colorScheme, colorSchemeVariables, generationMethod) = getColorScheme(uint256(keccak256(abi.encodePacked(gameId, tokenId, gameBoard))));
+        (colorScheme, colorSchemeVariables, generationMethod) = getColorScheme(uint256(keccak256(abi.encodePacked(gameId, tokenId, gameBoard, block.difficulty))));
+        console2.log(colorScheme);
+        console2.log(colorSchemeVariables);
+        console2.log(generationMethod);
 
         image = getImage(gameBoard, colorSchemeVariables);
         attributes = string(
@@ -120,10 +125,10 @@ library TicTacToeArt {
                 name = string(abi.encodePacked("Game #", gameNumber, ", Result: Draw"));
                 description = string(abi.encodePacked("Game #", gameNumber, " - Player 0: ", p0, " vs Player 1: ", p1, " - Result: Draw"));
             } else if (winner == 1) {
-                name = string(abi.encodePacked("0xcacti - Game #", gameNumber, ", Result: Player Zero Wins!"));
+                name = string(abi.encodePacked("Game #", gameNumber, ", Result: Player Zero Wins!"));
                 description = string(abi.encodePacked("Game #", gameNumber, " - Player 0: ", p0, " vs Player 1: ", p1, " - Result: Player Zero Wins!"));
             } else {
-                name = string(abi.encodePacked("0xcacti - Game #", gameNumber, ", Result: Player One Wins!"));
+                name = string(abi.encodePacked("Game #", gameNumber, ", Result: Player One Wins!"));
                 description = string(abi.encodePacked("Game #", gameNumber, " - Player 0: ", p0,  " vs Player 1: ", p1, " - Result: Player One Wins!"));
             }
         }
@@ -139,6 +144,7 @@ library TicTacToeArt {
         {
             if (_seed & 0x1F < 25) {
                 generationMethod = "random";
+
                 colorTheme = (_seed >> 5) & 0xFFFFFF;
                 if (_seed & 0x1F < 7) {
                     colorTheme = (colorTheme << 0x60) | (colorTheme << 0x48) | (colorTheme << 0x30)
@@ -156,6 +162,7 @@ library TicTacToeArt {
                     colorTheme =
                         (complementColor(colorTheme) << 0x60) | (colorTheme << 0x18) | complementColor(colorTheme);
                 }
+                colorThemeName = Strings.toHexString(colorTheme, 15);
             } else {
                 _seed >>= 5;
                 generationMethod = "curated";
@@ -170,24 +177,28 @@ library TicTacToeArt {
             }
             colorThemeVariables = string(
                 abi.encodePacked(
-                    "--e:",
+                    "--a:",
                     toColorHexString(colorTheme >> 0x60),
-                    ";--f:",
+                    ";--b:",
                     toColorHexString((colorTheme >> 0x48) & 0xFFFFFF),
-                    ";--g:",
+                    ";--c:",
                     toColorHexString((colorTheme >> 0x30) & 0xFFFFFF),
-                    ";--h:",
+                    ";--d:",
                     toColorHexString((colorTheme >> 0x18) & 0xFFFFFF),
-                    ";--i:",
+                    ";--e:",
                     toColorHexString(colorTheme & 0xFFFFFF),
                     ";"
                 )
             );
         }
+
+       //  0x000000000000000000 1c1719 735d65 392e32 e7bacb 184534
+      // 0xfde8e1 f4a386 fad1c3 e8460d 17b9f2
         return (colorThemeName, colorThemeVariables, generationMethod);
     }
 
     function getImage(uint256 _board, string memory colorSchemeVariables) internal pure returns (string memory) {
+
         return string(abi.encodePacked('temp_image_string",'));
     }
 
