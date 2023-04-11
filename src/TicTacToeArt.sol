@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.17;
 
 import {Base64} from "src/Base64.sol";
 import {Game} from "src/Game.sol";
@@ -59,193 +59,107 @@ library TicTacToeArt {
         returns (string memory)
     {
         // you need to resolve the fact that gameId does not decode which freaking player won and therefore which nft you are minting
-        string memory player;
-        string memory result;
-        string memory gameTag;
+        string memory name;
         string memory description;
         string memory image;
         string memory attributes;
+        string memory colorScheme;
+        string memory colorSchemeVariables;
+        string memory generationMethod;
+
+        (name, description) = getNameAndDescription(gameId, tokenId, gameBoard, playerZero, playerOne);
 
         // generate game description
-        {
-            address playerAddress = address(uint160(tokenId));
-            player = Strings.toHexString(uint160(playerAddress), 20);
 
-            uint256 winner = gameBoard.getWinner();
-            if (winner == 3) {
-                result = "Draw";
-            } else if (winner == 1) {
-                result = "Player Zero Wins!";
-            } else {
-                result = "Player One Wins!";
-            }
-            gameTag = Strings.toString(gameId / 2);
-        }
 
-        description = string(
-            abi.encodePacked(
-                '"Game #',
-                gameTag,
-                " - Player 0: ",
-                Strings.toHexString(uint160(playerZero), 20),
-                " vs Player 1: ",
-                Strings.toHexString(uint160(playerOne), 20),
-                " - Result: ",
-                result,
-                '",'
-            )
-        );
 
-        uint256 _seed = uint256(keccak256(abi.encodePacked(_tokenId, description, game)));
-        image = getImage(gameBoard, seed);
+        
+        (colorScheme, colorSchemeVariables, generationMethod) = getColorScheme(uint256(keccak256(abi.encodePacked(gameId, tokenId, gameBoard))));
 
+        image = getImage(gameBoard, colorSchemeVariables);
         attributes = string(
             abi.encodePacked(
-                '[{"trait_type":"Result","value":"',
-                result,
-                '"},{"trait_type":"Player","value":"',
-                player,
-                '"},{"trait_type":"Color Theme","value":"Nord"},{"trait_type":"Color Generation","value":"Curated"}]}'
+                '[{"trait_type":"Color Theme","value":"',
+                colorScheme, 
+                '"},{"trait_type":"Color Generation","value":"',
+                generationMethod,
+                '"}]}'
             )
         );
+        
+        
 
-        {
-            string memory tempAttribute;
-
-
-        // return the ERC721 Metadata JSON Schema
-        return string(
-            // abi.encodePacked(
-            //     "data:application/json;base64,",
-            //     Base64.encode(
-            abi.encodePacked(
-                '{"name":"Game #',
-                gameTag,
-                " - Player ",
-                player,
-                '","description":',
-                description,
-                '"image_url":"data:text/html;base64,',
-                image,
-                '"attributes":',
-                attributes
-            )
-        );
-
+            // return the ERC721 Metadata JSON Schema
+            return string(
+                // abi.encodePacked(
+                //     "data:application/json;base64,",
+                //     Base64.encode(
+                abi.encodePacked(
+                    '{"name":"',
+                    name,
+                    '","description":',
+                    description,
+                    '","image_url":"data:text/html;base64,',
+                    image,
+                    '"attributes":',
+                    attributes
+                )
+            );
+        
     }
 
-    function getColorScheme(uint256 seed) internal pure returns (string memory) {
-
-                    {
-                string memory tempAttribute;
-                uint256 colorTheme;
-                if (_seed & 0x1F < 25) {
-                    colorTheme = (_seed >> 5) & 0xFFFFFF;
-                    attributes = string(
-                        abi.encodePacked(attributes, ',{"trait_type":"Base Color","value":', colorTheme.toString(), "}")
-                    );
-                    if (_seed & 0x1F < 7) {
-                        tempAttribute = "Uniform";
-                        colorTheme = (colorTheme << 0x60) | (colorTheme << 0x48) | (colorTheme << 0x30)
-                            | (colorTheme << 0x18) | complementColor(colorTheme);
-                    } else if (_seed & 0x1F < 14) {
-                        tempAttribute = "Shades";
-                        colorTheme = (darkenColor(colorTheme, 3) << 0x60) | (darkenColor(colorTheme, 1) << 0x48)
-                            | (darkenColor(colorTheme, 2) << 0x30) | (colorTheme << 0x18) | complementColor(colorTheme);
-                    } else if (_seed & 0x1F < 21) {
-                        tempAttribute = "Tints";
-                        colorTheme = (brightenColor(colorTheme, 3) << 0x60) | (brightenColor(colorTheme, 1) << 0x48)
-                            | (brightenColor(colorTheme, 2) << 0x30) | (colorTheme << 0x18) | complementColor(colorTheme);
-                    } else if (_seed & 0x1F < 24) {
-                        tempAttribute = "Eclipse";
-                        colorTheme = (colorTheme << 0x60) | (0xFFFFFF << 0x48) | (colorTheme << 0x18)
-                            | complementColor(colorTheme);
-                    } else {
-                        tempAttribute = "Void";
-                        colorTheme =
-                            (complementColor(colorTheme) << 0x60) | (colorTheme << 0x18) | complementColor(colorTheme);
-                    }
-                } else {
-                    tempAttribute = "Curated";
-                    _seed >>= 5;
-
-                    attributes = string(
-                        abi.encodePacked(
-                            attributes,
-                            ',{"trait_type":"Color Theme","value":"',
-                            ["Nord", "B/W", "Candycorn", "RGB", "VSCode", "Neon", "Jungle", "Corn"][_seed & 7],
-                            '"}'
-                        )
-                    );
-
-                    colorTheme = [
-                        0x8FBCBBEBCB8BD087705E81ACB48EAD000000FFFFFFFFFFFFFFFFFF000000,
-                        0x0D3B66F4D35EEE964BFAF0CAF95738FFFF0000FF000000FFFF0000FFFF00,
-                        0x1E1E1E569CD6D2D1A2BA7FB54DC4AC00FFFFFFFF000000FF00FF00FF00FF,
-                        0xBE3400015045020D22EABAACBE3400F9C233705860211A28346830F9C233
-                    ][(_seed & 7) >> 1];
-                    colorTheme = _seed & 1 == 0 ? colorTheme >> 0x78 : colorTheme & 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
-                }
-                attributes = string(
-                    abi.encodePacked(attributes, ',{"trait_type":"Color Generation","value":"', tempAttribute, '"}')
-                );
-                styles = string(
-                    abi.encodePacked(
-                        styles,
-                        "--e:",
-                        toColorHexString(colorTheme >> 0x60),
-                        ";--f:",
-                        toColorHexString((colorTheme >> 0x48) & 0xFFFFFF),
-                        ";--g:",
-                        toColorHexString((colorTheme >> 0x30) & 0xFFFFFF),
-                        ";--h:",
-                        toColorHexString((colorTheme >> 0x18) & 0xFFFFFF),
-                        ";--i:",
-                        toColorHexString(colorTheme & 0xFFFFFF),
-                        ";"
-                    )
-                );
+    function getNameAndDescription(uint256 gameId, uint256 tokenId, uint256 gameBoard, address playerZero, address playerOne) internal pure returns (string memory, string memory) {
+        string memory name;
+        string memory description;
+        {
+            uint256 winner = gameBoard.getWinner();
+            string memory p0 = Strings.toHexString(uint160(playerZero), 20);
+            string memory p1 = Strings.toHexString(uint160(playerOne), 20);
+            string memory gameNumber = Strings.toString( gameId / 2);
+            if (winner == 3) {
+                name = string(abi.encodePacked("Game #", gameNumber, ", Result: Draw"));
+                description = string(abi.encodePacked("Game #", gameNumber, " - Player 0: ", p0, " vs Player 1: ", p1, " - Result: Draw"));
+            } else if (winner == 1) {
+                name = string(abi.encodePacked("0xcacti - Game #", gameNumber, ", Result: Player Zero Wins!"));
+                description = string(abi.encodePacked("Game #", gameNumber, " - Player 0: ", p0, " vs Player 1: ", p1, " - Result: Player Zero Wins!"));
+            } else {
+                name = string(abi.encodePacked("0xcacti - Game #", gameNumber, ", Result: Player One Wins!"));
+                description = string(abi.encodePacked("Game #", gameNumber, " - Player 0: ", p0,  " vs Player 1: ", p1, " - Result: Player One Wins!"));
             }
-            uint256 colorTheme;
+        }
+
+        return (name, description);
+    }
+
+    function getColorScheme(uint256 _seed) internal pure returns (string memory, string memory, string memory) {
+        uint256 colorTheme;
+        string memory colorThemeName;
+        string memory generationMethod;
+        string memory colorThemeVariables;
+        {
             if (_seed & 0x1F < 25) {
+                generationMethod = "random";
                 colorTheme = (_seed >> 5) & 0xFFFFFF;
-                attributes = string(
-                    abi.encodePacked(attributes, ',{"trait_type":"Base Color","value":', colorTheme.toString(), "}")
-                );
                 if (_seed & 0x1F < 7) {
-                    tempAttribute = "Uniform";
                     colorTheme = (colorTheme << 0x60) | (colorTheme << 0x48) | (colorTheme << 0x30)
                         | (colorTheme << 0x18) | complementColor(colorTheme);
                 } else if (_seed & 0x1F < 14) {
-                    tempAttribute = "Shades";
                     colorTheme = (darkenColor(colorTheme, 3) << 0x60) | (darkenColor(colorTheme, 1) << 0x48)
                         | (darkenColor(colorTheme, 2) << 0x30) | (colorTheme << 0x18) | complementColor(colorTheme);
                 } else if (_seed & 0x1F < 21) {
-                    tempAttribute = "Tints";
                     colorTheme = (brightenColor(colorTheme, 3) << 0x60) | (brightenColor(colorTheme, 1) << 0x48)
                         | (brightenColor(colorTheme, 2) << 0x30) | (colorTheme << 0x18) | complementColor(colorTheme);
                 } else if (_seed & 0x1F < 24) {
-                    tempAttribute = "Eclipse";
                     colorTheme =
                         (colorTheme << 0x60) | (0xFFFFFF << 0x48) | (colorTheme << 0x18) | complementColor(colorTheme);
                 } else {
-                    tempAttribute = "Void";
                     colorTheme =
                         (complementColor(colorTheme) << 0x60) | (colorTheme << 0x18) | complementColor(colorTheme);
                 }
             } else {
-                tempAttribute = "Curated";
                 _seed >>= 5;
-
-                attributes = string(
-                    abi.encodePacked(
-                        attributes,
-                        ',{"trait_type":"Color Theme","value":"',
-                        ["Nord", "B/W", "Candycorn", "RGB", "VSCode", "Neon", "Jungle", "Corn"][_seed & 7],
-                        '"}'
-                    )
-                );
-
+                generationMethod = "curated";
+                colorThemeName = string(["Nord", "B/W", "Candycorn", "RGB", "VSCode", "Neon", "Jungle", "Corn"][_seed & 7]);
                 colorTheme = [
                     0x8FBCBBEBCB8BD087705E81ACB48EAD000000FFFFFFFFFFFFFFFFFF000000,
                     0x0D3B66F4D35EEE964BFAF0CAF95738FFFF0000FF000000FFFF0000FFFF00,
@@ -254,11 +168,8 @@ library TicTacToeArt {
                 ][(_seed & 7) >> 1];
                 colorTheme = _seed & 1 == 0 ? colorTheme >> 0x78 : colorTheme & 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
             }
-            attributes =
-                string(abi.encodePacked(attributes, ',{"trait_type":"Color Generation","value":"', tempAttribute, '"}'));
-            styles = string(
+            colorThemeVariables = string(
                 abi.encodePacked(
-                    styles,
                     "--e:",
                     toColorHexString(colorTheme >> 0x60),
                     ";--f:",
@@ -273,10 +184,10 @@ library TicTacToeArt {
                 )
             );
         }
-
+        return (colorThemeName, colorThemeVariables, generationMethod);
     }
 
-    function getImage(uint256 _board) internal pure returns (string memory) {
+    function getImage(uint256 _board, string memory colorSchemeVariables) internal pure returns (string memory) {
         return string(abi.encodePacked('temp_image_string",'));
     }
 

@@ -75,7 +75,7 @@ contract TicTacToe is ERC721, Owned {
         }
     }
 
-    function mintGame(uint256 gameId) external payable {
+    function mintGame(uint256 _gameId) external payable {
         // pass a gameId
         // mint two NFTs that can be looked up with their tokenID
         // one to playerZero
@@ -87,7 +87,7 @@ contract TicTacToe is ERC721, Owned {
         // one to playerOne
         // this can be maybe gameID bit packed with player Address
 
-        (uint256 game, address playerZero, address playerOne) = retrieveAllGameInfo(gameId);
+        (uint256 game, address playerZero, address playerOne) = retrieveAllGameInfo(_gameId);
 
         if (msg.value != mintPrice) {
             revert IncorrectPayment();
@@ -101,8 +101,8 @@ contract TicTacToe is ERC721, Owned {
             revert GameNotOver();
         }
 
-        uint256 playerZeroTokenId = (gameId << 160) | uint256(uint160(playerZero));
-        uint256 playerOneTokenId = ((gameId + 1) << 160) | uint256(uint160(playerOne));
+        uint256 playerZeroTokenId = (_gameId << 160) | uint256(uint160(playerZero));
+        uint256 playerOneTokenId = ((_gameId + 1) << 160) | uint256(uint160(playerOne));
         _mint(playerZero, playerZeroTokenId);
         _mint(playerOne, playerOneTokenId);
     }
