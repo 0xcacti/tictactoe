@@ -1,11 +1,16 @@
 <style>
-
     :root {
-        --a:#F9F1ED;--b:#E4C5B7;--c:#F2E2DB;--d:#C88B6F;--e:#377490;
+        --a: #00FFFF;
+        --b: #FFFF00;
+        --c: #0012FF;
+        --d: #00FF00;
+        --e: #FF00FF;
     }
+
     body {
         background: var(--a);
     }
+
     .container {
         position: fixed;
         top: 0;
@@ -17,6 +22,7 @@
         width: 300px;
         flex-direction: column;
     }
+
     .crossVerticalLeft {
         width: 8px;
         position: absolute;
@@ -28,6 +34,7 @@
         border-bottom-left-radius: 30px;
         border-bottom-right-radius: 30px;
     }
+
     .crossHorizontalTop {
         width: 100%;
         position: absolute;
@@ -39,6 +46,7 @@
         border-bottom-left-radius: 30px;
         border-bottom-right-radius: 30px;
     }
+
     .crossHorizontalBottom {
         width: 100%;
         position: absolute;
@@ -49,8 +57,8 @@
         border-top-right-radius: 30px;
         border-bottom-left-radius: 30px;
         border-bottom-right-radius: 30px;
-
     }
+
     .crossVerticalRight {
         width: 8px;
         position: absolute;
@@ -62,112 +70,96 @@
         border-bottom-left-radius: 30px;
         border-bottom-right-radius: 30px;
     }
-/* 
+
     .o00 {
+        position: absolute;
+        border: 25px solid var (--c);
+        top: 10px;
+        left: 10px;
+        border-radius: 100px;
+        width: 30px;
+        height: 30px;
+    }
+
+    .o01 {
+        position: absolute;
+        border: 25px solid var (--c);
+        top: 10px;
+        left: 110px;
+        border-radius: 100px;
+        width: 30px;
+        height: 30px;
+
+    }
+
+    .o02 {
         width: 30px;
         height: 30px;
         position: absolute;
         border: 25px solid var (--c);
         border-radius: 100px;
         top: 10px;
-        left: 10px;
-    } */
-    .o00 {
-        position: absolute;
-        border: 25px solid var(--c);
-        top: 10px;
-        left: 10px;
-        border-radius: 100px;
-        height: 30px;
-        width: 30px;
-    }
-
-    .o01 {
-        position: absolute;
-        border: 25px solid var(--c);
-        top: 10px;
-        left: 110px;
-        border-radius: 100px;
-        height: 30px;
-        width: 30px;
-
-    }
-
-    .o02 {
-        position: absolute;
-        border: 25px solid var(--c);
-        top: 10;
-        left: 210;
-        border-radius: 100px;
-        height: 30px;
-        width: 30px;
+        left: 210px;
     }
 
     .o10 {
+        width: 30px;
+        height: 30px;
         position: absolute;
-
-        border: 25px solid var(--c);
+        border: 25px solid var (--c);
+        border-radius: 100px;
         top: 110px;
         left: 10px;
-        border-radius: 100px;
-        height: 30px;
-        width: 30px;
     }
 
     .o11 {
+        width: 30px;
+        height: 30px;
         position: absolute;
-
-        border: 25px solid var(--c);
+        border: 25px solid var (--c);
+        border-radius: 100px;
         top: 110px;
         left: 110px;
-        border-radius: 100px;
-        height: 30px;
-        width: 30px;
-
     }
 
     .o12 {
-        position: absolute;
-        border: 25px solid var(--c);
-        top: 110;
-        left: 210;
-        border-radius: 100px;
-        height: 30px;
         width: 30px;
+        height: 30px;
+        position: absolute;
+        border: 25px solid var (--c);
+        border-radius: 100px;
+        top: 110px;
+        left: 210px;
     }
 
     .o20 {
+        width: 30px;
+        height: 30px;
         position: absolute;
-
-        border: 25px solid var(--c);
+        border: 25px solid var (--c);
+        border-radius: 100px;
         top: 210px;
         left: 10px;
-        border-radius: 100px;
-        height: 30px;
-        width: 30px;
     }
 
     .o21 {
+        width: 30px;
+        height: 30px;
         position: absolute;
-
-        border: 25px solid var(--c);
+        border: 25px solid var (--c);
+        border-radius: 100px;
         top: 210px;
         left: 110px;
-        border-radius: 100px;
-        height: 30px;
-        width: 30px;
-
     }
 
     .o22 {
-        position: absolute;
-
-        border: 25px solid var(--c);
-        top: 210;
-        left: 210;
-        border-radius: 100px;
-        height: 30px;
         width: 30px;
+        height: 30px;
+        position: absolute;
+        border: 25px solid var (--c);
+        border-radius: 100px;
+        top: 210px;
+        left: 210px;
     }
 
     .x00Left {
@@ -198,13 +190,12 @@
         border-bottom-right-radius: 30px;
     }
 
-
     .x01Left {
         width: 100px;
         position: absolute;
         height: 10px;
         top: 45px;
-        left: 100px;
+        left: 101px;
         background: var(--e);
         rotate: 45deg;
         border-top-left-radius: 30px;
@@ -218,7 +209,7 @@
         position: absolute;
         height: 10px;
         top: 45px;
-        left: 100px;
+        left: 101px;
         background: var(--e);
         rotate: -45deg;
         border-top-left-radius: 30px;
@@ -255,7 +246,6 @@
         border-bottom-right-radius: 30px;
     }
 
-
     .x10Left {
         width: 100px;
         position: absolute;
@@ -284,13 +274,12 @@
         border-bottom-right-radius: 30px;
     }
 
-
     .x11Left {
         width: 100px;
         position: absolute;
         height: 10px;
         top: 145px;
-        left: 100px;
+        left: 101px;
         background: var(--e);
         rotate: 45deg;
         border-top-left-radius: 30px;
@@ -304,7 +293,7 @@
         position: absolute;
         height: 10px;
         top: 145px;
-        left: 100px;
+        left: 101px;
         background: var(--e);
         rotate: -45deg;
         border-top-left-radius: 30px;
@@ -369,13 +358,12 @@
         border-bottom-right-radius: 30px;
     }
 
-
     .x21Left {
         width: 100px;
         position: absolute;
         height: 10px;
         top: 245px;
-        left: 100px;
+        left: 101px;
         background: var(--e);
         rotate: 45deg;
         border-top-left-radius: 30px;
@@ -389,7 +377,7 @@
         position: absolute;
         height: 10px;
         top: 245px;
-        left: 100px;
+        left: 101px;
         background: var(--e);
         rotate: -45deg;
         border-top-left-radius: 30px;
@@ -426,37 +414,24 @@
         border-bottom-right-radius: 30px;
     }
 </style>
-
-<section><div class='container'>
+<section>
+    <div class='container'>
         <div class='crossVerticalLeft'></div>
         <div class='crossVerticalRight'></div>
         <div class='crossHorizontalTop'></div>
         <div class='crossHorizontalBottom'></div>
         <div class='o00'></div>
-        <div class='o01'></div>
-        <div class='o02'></div>
-        <div class='o10'></div>
-        <div class='o11'></div>
-        <div class='o12'></div>
-        <div class='o20'></div>
-        <div class='o21'></div>
-        <div class='o22'></div>
-        <div class='x00Left'></div>
-        <div class='x00Right'></div>
         <div class='x01Left'></div>
         <div class='x01Right'></div>
-        <div class='x02Left'></div>
-        <div class='x02Right'></div>
+        <div class='o02'></div>
         <div class='x10Left'></div>
         <div class='x10Right'></div>
         <div class='x11Left'></div>
         <div class='x11Right'></div>
-        <div class='x12Left'></div>
-        <div class='x12Right'></div>
+        <div class='o12'></div>
         <div class='x20Left'></div>
         <div class='x20Right'></div>
-        <div class='x21Left'></div>
-        <div class='x21Right'></div>
+        <div class='o21'></div>
         <div class='x22Left'></div>
         <div class='x22Right'></div>
     </div>

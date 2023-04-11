@@ -82,6 +82,15 @@ library TicTacToeArt {
         console2.log(generationMethod);
 
         image = getImage(gameBoard, colorSchemeVariables);
+        image = string(
+            abi.encodePacked(
+                "<style> :root { ",
+                colorSchemeVariables,
+                " } ",
+                image
+            )
+        );
+        console2.log(image);
         attributes = string(
             abi.encodePacked(
                 '[{"trait_type":"Color Theme","value":"',
@@ -198,8 +207,135 @@ library TicTacToeArt {
     }
 
     function getImage(uint256 _board, string memory colorSchemeVariables) internal pure returns (string memory) {
+        string memory image;
+        {
+            image = string(
+                abi.encodePacked(
+                    image,
+                    "body {background: var(--a);} .container { position: fixed;top: 0;bottom: 0;left: 0;right: 0;margin: auto;height: 300px;width: 300px;flex-direction: column;}", 
+                    " .crossVerticalLeft {width: 8px;position: absolute;height: 100%;left: 95px;background: var(--b);border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .crossHorizontalTop {width: 100%;position: absolute;height: 8px;top: 95px;background: var(--b);border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .crossHorizontalBottom {width: 100%;position: absolute;height: 8px;top: 195px;background: var(--b);border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .crossVerticalRight {width: 8px;position: absolute;left: 195px;height: 100%;background: var(--b);border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}"
+                )
+            );
+        }
+        {
+            image = string(
+                abi.encodePacked(
+                    image,
+                    " .o00 {width: 30px;height: 30px;position: absolute;border: 25px solid var (--c);border-radius: 100px;top: 10px;left: 10px;}",
+                    " .o01 {width: 30px;height: 30px;position: absolute;border: 25px solid var (--c);border-radius: 100px;top: 10px;left: 110px;}",
+                    " .o02 {width: 30px;height: 30px;position: absolute;border: 25px solid var (--c);border-radius: 100px;top: 10px;left: 210px;}",
+                    " .o10 {width: 30px;height: 30px;position: absolute;border: 25px solid var (--c);border-radius: 100px;top: 110px;left: 10px;}",
+                    " .o11 {width: 30px;height: 30px;position: absolute;border: 25px solid var (--c);border-radius: 100px;top: 110px;left: 110px;}",
+                    " .o12 {width: 30px;height: 30px;position: absolute;border: 25px solid var (--c);border-radius: 100px;top: 110px;left: 210px;}",
+                    " .o20 {width: 30px;height: 30px;position: absolute;border: 25px solid var (--c);border-radius: 100px;top: 210px;left: 10px;}",
+                    " .o21 {width: 30px;height: 30px;position: absolute;border: 25px solid var (--c);border-radius: 100px;top: 210px;left: 110px;}",
+                    " .o22 {width: 30px;height: 30px;position: absolute;border: 25px solid var (--c);border-radius: 100px;top: 210px;left: 210px;}"
+                )
+            );
+        }
 
-        return string(abi.encodePacked('temp_image_string",'));
+        {
+            image = string(
+                abi.encodePacked(
+                    image,
+                    " .x00Left {width: 100px;position: absolute;height: 10px;top: 45px;left: 1px;background: var(--e);rotate: 45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .x00Right {width: 100px;position: absolute;height: 10px;top: 45px;left: 1px;background: var(--e);rotate: -45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .x01Left {width: 100px;position: absolute;height: 10px;top: 45px;left: 101px;background: var(--e);rotate: 45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .x01Right {width: 100px;position: absolute;height: 10px;top: 45px;left: 101px;background: var(--e);rotate: -45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .x02Left {width: 100px;position: absolute;height: 10px;top: 45px;left: 201px;background: var(--e);rotate: 45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .x02Right {width: 100px;position: absolute;height: 10px;top: 45px;left: 201px;background: var(--e);rotate: -45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}"
+                )
+            );
+        }
+        {
+            image = string(
+                abi.encodePacked(
+                    image,
+                    " .x10Left {width: 100px;position: absolute;height: 10px;top: 145px;left: 1px;background: var(--e);rotate: 45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .x10Right {width: 100px;position: absolute;height: 10px;top: 145px;left: 1px;background: var(--e);rotate: -45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .x11Left {width: 100px;position: absolute;height: 10px;top: 145px;left: 101px;background: var(--e);rotate: 45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .x11Right {width: 100px;position: absolute;height: 10px;top: 145px;left: 101px;background: var(--e);rotate: -45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .x12Left {width: 100px;position: absolute;height: 10px;top: 145px;left: 201px;background: var(--e);rotate: 45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .x12Right {width: 100px;position: absolute;height: 10px;top: 145px;left: 201px;background: var(--e);rotate: -45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}"
+                )
+            );
+        }
+        {
+            image = string(
+                abi.encodePacked(
+                    image,
+                    " .x20Left {width: 100px;position: absolute;height: 10px;top: 245px;left: 1px;background: var(--e);rotate: 45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .x20Right {width: 100px;position: absolute;height: 10px;top: 245px;left: 1px;background: var(--e);rotate: -45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .x21Left {width: 100px;position: absolute;height: 10px;top: 245px;left: 101px;background: var(--e);rotate: 45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .x21Right {width: 100px;position: absolute;height: 10px;top: 245px;left: 101px;background: var(--e);rotate: -45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .x22Left {width: 100px;position: absolute;height: 10px;top: 245px;left: 201px;background: var(--e);rotate: 45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .x22Right {width: 100px;position: absolute;height: 10px;top: 245px;left: 201px;background: var(--e);rotate: -45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}"
+                )
+            );
+        }
+
+        image = string(
+            abi.encodePacked(
+                image, 
+                "</style>", 
+                "<section><div class='container'><div class='crossVerticalLeft'></div><div class='crossVerticalRight'></div><div class='crossHorizontalTop'></div><div class='crossHorizontalBottom'></div>"
+                )
+            );
+        
+        uint256 piece = 0;
+        for (uint256 i = 0; i < 9; i++) {
+            piece = (_board >> (i * 8)) & 0xff; // do I need the whole byte
+            if (piece == 0) {
+                continue;
+            } else if (piece == 1) { // we're gonna place an x
+                if (i == 0) {
+                    image = string(abi.encodePacked(image, "<div class='x00Left'></div>", "<div class='x00Right'></div>"));
+                } else if (i == 1) {
+                    image = string(abi.encodePacked(image, "<div class='x01Left'></div>", "<div class='x01Right'></div>"));
+                } else if (i == 2) {
+                    image = string(abi.encodePacked(image, "<div class='x02Left'></div>", "<div class='x02Right'></div>"));
+                } else if (i == 3) {
+                    image = string(abi.encodePacked(image, "<div class='x10Left'></div>", "<div class='x10Right'></div>"));
+                } else if (i == 4) {
+                    image = string(abi.encodePacked(image, "<div class='x11Left'></div>", "<div class='x11Right'></div>"));
+                } else if (i == 5) {
+                    image = string(abi.encodePacked(image, "<div class='x12Left'></div>", "<div class='x12Right'></div>"));
+                } else if (i == 6) {
+                    image = string(abi.encodePacked(image, "<div class='x20Left'></div>", "<div class='x20Right'></div>"));
+                } else if (i == 7) {
+                    image = string(abi.encodePacked(image, "<div class='x21Left'></div>", "<div class='x21Right'></div>"));
+                } else if (i == 8) {
+                    image = string(abi.encodePacked(image, "<div class='x22Left'></div>", "<div class='x22Right'></div>"));
+                }
+
+            } else if (piece == 2) {
+                if (i == 0) {
+                    image = string(abi.encodePacked(image, "<div class='o00'></div>"));
+                } else if (i == 1) {
+                    image = string(abi.encodePacked(image, "<div class='o01'></div>"));
+                } else if (i == 2) {
+                    image = string(abi.encodePacked(image, "<div class='o02'></div>"));
+                } else if (i == 3) {
+                    image = string(abi.encodePacked(image, "<div class='o10'></div>"));
+                } else if (i == 4) {
+                    image = string(abi.encodePacked(image, "<div class='o11'></div>"));
+                } else if (i == 5) {
+                    image = string(abi.encodePacked(image, "<div class='o12'></div>"));
+                } else if (i == 6) {
+                    image = string(abi.encodePacked(image, "<div class='o20'></div>"));
+                } else if (i == 7) {
+                    image = string(abi.encodePacked(image, "<div class='o21'></div>"));
+                } else if (i == 8) {
+                    image = string(abi.encodePacked(image, "<div class='o22'></div>"));
+                }
+            }
+
+        }
+
+        return string(abi.encodePacked(image, "</div></section>"));
     }
 
     /// @notice Computes the complement of 24-bit colors.
