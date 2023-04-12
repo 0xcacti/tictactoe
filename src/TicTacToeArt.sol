@@ -91,6 +91,7 @@ library TicTacToeArt {
             )
         );
         console2.log(image);
+        console2.log();
         attributes = string(
             abi.encodePacked(
                 '[{"trait_type":"Color Theme","value":"',
@@ -224,15 +225,15 @@ library TicTacToeArt {
             image = string(
                 abi.encodePacked(
                     image,
-                    " .o00 {width: 30px;height: 30px;position: absolute;border: 25px solid var (--c);border-radius: 100px;top: 10px;left: 10px;}",
-                    " .o01 {width: 30px;height: 30px;position: absolute;border: 25px solid var (--c);border-radius: 100px;top: 10px;left: 110px;}",
-                    " .o02 {width: 30px;height: 30px;position: absolute;border: 25px solid var (--c);border-radius: 100px;top: 10px;left: 210px;}",
-                    " .o10 {width: 30px;height: 30px;position: absolute;border: 25px solid var (--c);border-radius: 100px;top: 110px;left: 10px;}",
-                    " .o11 {width: 30px;height: 30px;position: absolute;border: 25px solid var (--c);border-radius: 100px;top: 110px;left: 110px;}",
-                    " .o12 {width: 30px;height: 30px;position: absolute;border: 25px solid var (--c);border-radius: 100px;top: 110px;left: 210px;}",
-                    " .o20 {width: 30px;height: 30px;position: absolute;border: 25px solid var (--c);border-radius: 100px;top: 210px;left: 10px;}",
-                    " .o21 {width: 30px;height: 30px;position: absolute;border: 25px solid var (--c);border-radius: 100px;top: 210px;left: 110px;}",
-                    " .o22 {width: 30px;height: 30px;position: absolute;border: 25px solid var (--c);border-radius: 100px;top: 210px;left: 210px;}"
+                    " .o00 {position: absolute;border: 25px solid var(--c);top: 10px;left: 10px;border-radius: 100px;height: 30px;width: 30px;}",
+                    " .o01 {position: absolute;border: 25px solid var(--c);top: 10px;left: 110px;border-radius: 100px;height: 30px;width: 30px;}",
+                    " .o02 {position: absolute;border: 25px solid var(--c);top: 10px;left: 210px;border-radius: 100px;height: 30px;width: 30px;}",
+                    " .o10 {position: absolute;border: 25px solid var(--c);top: 110px;left: 10px;border-radius: 100px;height: 30px;width: 30px;}",
+                    " .o11 {position: absolute;border: 25px solid var(--c);top: 110px;left: 110px;border-radius: 100px;height: 30px;width: 30px;}",
+                    " .o12 {position: absolute;border: 25px solid var(--c);top: 110px;left: 210px;border-radius: 100px;height: 30px;width: 30px;}",
+                    " .o20 {position: absolute;border: 25px solid var(--c);top: 210px;left: 10px;border-radius: 100px;height: 30px;width: 30px;}",
+                    " .o21 {position: absolute;border: 25px solid var(--c);top: 210px;left: 110px;border-radius: 100px;height: 30px;width: 30px;}",
+                    " .o22 {position: absolute;border: 25px solid var(--c);top: 210px;left: 210px;border-radius: 100px;height: 30px;width: 30px;}"
                 )
             );
         }
