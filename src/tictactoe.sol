@@ -9,7 +9,7 @@ import {Game} from "src/Game.sol";
 
 /// @title TicTacToe
 /// @author 0xcacti
-/// @notice Below is the contract for handling the state of the tictactoe games and minting the tokens
+/// @notice Below is the contract for handling the state of the tictactoe games and minting the tokens.
 
 contract TicTacToe is ERC721, Owned {
     using Game for uint256;
@@ -22,52 +22,52 @@ contract TicTacToe is ERC721, Owned {
     /// @notice The owner address.
     address constant OWNER_ADDRESS = 0xB95777719Ae59Ea47A99e744AfA59CdcF1c410a1;
 
-    // @notice mint price
+    // @notice Mint price.
     uint256 constant MINT_PRICE = 0.005 ether;
 
     /*//////////////////////////////////////////////////////////////
                                STORAGE
     //////////////////////////////////////////////////////////////*/
 
-    /// @notice the current Game ID
+    /// @notice The current Game ID.
     uint256 gameID;
 
-    /// @notice the baseURI for the tokens - for domain resolution
+    /// @notice The baseURI for the tokens - for domain resolution.
     string private baseURI;
 
-    /// @notice mapping of tokenIDs to their minted status
+    /// @notice Mapping of tokenIDs to their minted status.
     mapping(uint256 => bool) minted;
 
-    /// @notice mapping of gameIDs to their bitpacked player zero address and gameboard
+    /// @notice Mapping of gameIDs to their bitpacked player zero address and gameboard.
     mapping(uint256 => uint256) mapOfPlayerZerosAndGames;
 
-    /// @notice mapping of gameIDs to their player one address
+    /// @notice Mapping of gameIDs to their player one address.
     mapping(uint256 => address) mapOfPlayerOnes;
 
     /*//////////////////////////////////////////////////////////////
                                ERRORS
     //////////////////////////////////////////////////////////////*/
 
-    /// @notice error on moving out of turn
+    /// @notice Error on moving out of turn.
     error NotYourTurn();
 
-    /// @notice error on invalid player
+    /// @notice Error on invalid player.
     error InvalidPlayer();
 
-    /// @notice error on invalid payment for mint
+    /// @notice Error on invalid payment for mint.
     error IncorrectPayment();
 
-    /// @notice error on illegal actions before game is over
+    /// @notice Error on illegal actions before game is over.
     error GameNotOver();
 
     /*//////////////////////////////////////////////////////////////
                         CONSTRUCTOR AND WITHDRAW 
     //////////////////////////////////////////////////////////////*/
 
-    /// @notice Deploy the contract and set the owner
+    /// @notice Deploy the contract and set the owner.
     constructor() ERC721("TicTacToe", "XOXO") Owned(OWNER_ADDRESS) {}
 
-    /// @notice Withdraw contract funds to the contract owner
+    /// @notice Withdraw contract funds to the contract owner.
     function withdraw() external onlyOwner {
         (bool success,) = payable(owner).call{value: address(this).balance}("");
         require(success);
@@ -77,11 +77,11 @@ contract TicTacToe is ERC721, Owned {
                                 GAMEPLAY
     //////////////////////////////////////////////////////////////*/
 
-    /// @notice create new game for two specified player addresses
-    /// @dev gameID iterates by two to handle tokenIDs for minting later
-    /// @param _playerZero the address of the first player
-    /// @param _playerOne the address of the second player
-    /// @return the gameID for the created game
+    /// @notice Create new game for two specified player addresses.
+    /// @dev GameID iterates by two to handle tokenIDs for minting later.
+    /// @param _playerZero The address of the first player.
+    /// @param _playerOne The address of the second player.
+    /// @return The gameID for the created game.
     function createNewGame(address _playerZero, address _playerOne) external returns (uint256) {
         uint256 currentgameID = gameID;
         gameID += 2;
@@ -90,26 +90,26 @@ contract TicTacToe is ERC721, Owned {
         return currentgameID;
     }
 
-    /// @notice retrieve all game info for a given gameID
-    /// @dev the game is bitpacked with the gameboard in the first 96 bits
-    /// and playerZero in last 160 bits of the game storage slot
-    /// @param _gameID the gameID to retrieve info for
-    /// @return the gameID, playerZero address, and playerOne address
+    /// @notice Retrieve all game info for a given gameID.
+    /// @dev The game is bitpacked with the gameboard in the first 96 bits
+    /// and playerZero in last 160 bits of the game storage slot.
+    /// @param _gameID The gameID for which to retrieve info.
+    /// @return The gameID, playerZero address, and playerOne address.
     function retrieveAllGameInfo(uint256 _gameID) public view returns (uint256, address, address) {
         uint256 gameInfo = mapOfPlayerZerosAndGames[_gameID];
         return (gameInfo >> 160, address(uint160(gameInfo)), mapOfPlayerOnes[_gameID]);
     }
 
-    /// @notice retrieve the game board for a given gameID
-    /// @param _gameID the gameID for which to retrieve game info
-    /// @return the current game board
+    /// @notice Retrieve the game board for a given gameID.
+    /// @param _gameID The gameID for which to retrieve game info.
+    /// @return The current game board.
     function retrieveGame(uint256 _gameID) public view returns (uint256) {
         return mapOfPlayerZerosAndGames[_gameID] >> 160;
     }
 
-    /// @notice take turn in tictactoe game
-    /// @param _gameID the gameID for which to take a turn
-    /// @param _move the move to take in the game moves are 0-8 indexing a tictactoe board left to right, top to bottom
+    /// @notice Take turn in tictactoe game.
+    /// @param _gameID The gameID for which to take a turn.
+    /// @param _move The move to take in the game moves are 0-8 indexing a tictactoe board left to right, top to bottom
     /// 0 1 2
     /// 3 4 5
     /// 6 7 8
@@ -147,8 +147,8 @@ contract TicTacToe is ERC721, Owned {
                                MINTING
     //////////////////////////////////////////////////////////////*/
 
-    /// @notice mint an NFT for a given gameID and player number
-    /// @dev playerNumber is 0 for playerZero and 1 for playerOne
+    /// @notice Mint an NFT for a given gameID and player number.
+    /// @dev the playerNumber is 0 for playerZero and 1 for playerOne
     /// @param _gameID the gameID for which to mint an NFT
     /// @param playerNumber the player number for which to mint an NFT
     function mint(uint256 _gameID, uint256 playerNumber) external payable {
