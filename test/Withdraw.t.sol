@@ -10,36 +10,39 @@ contract WithdrawTest is Test {
     TicTacToe game;
     address playerZero;
     address playerOne;
+    address owner;
     Utils utils;
 
     function setUp() public {
         game = new TicTacToe();
-
         playerZero = 0x4675C7e5BaAFBFFbca748158bEcBA61ef3b0a263;
         playerOne = 0xFeebabE6b0418eC13b30aAdF129F5DcDd4f70CeA;
+        owner = 0xB95777719Ae59Ea47A99e744AfA59CdcF1c410a1;
         utils = new Utils(game, playerZero, playerOne);
     }
 
-    // test return metadata matches pre-calculated base64 encoded string for single sided mint
-    function testMetadata() public {
-        uint256 gameID = game.createNewGame(playerZero, playerOne);
-        uint256[9] memory turns = [uint256(1), 0, 3, 2, 4, 5, 6, 7, 8];
-        utils.playGame(gameID, turns);
-        console.log(gameID);
-        uint256 tokenID = (gameID << 160) | uint256(uint160(playerZero));
-        string memory meow = game.tokenURI(tokenID);
-        console2.log(meow);
+    // test that the owner can withdraw funds even for strange value like zero
+    function testWithdrawSucceedsOnZeroBalance() public {
+        vm.prank(owner);
+        game.withdraw();
     }
 
-    // test return metadata matches pre-calculated base64 encoded string for double sided mint
+    // test that non-owner cannot withdraw funds
+    function testWithdrawFailsFromNonOwner() public {
+        vm.expectRevert();
+        game.withdraw();
+    }
 
-    // test minting fails if game is not over for single and double sided mins
+    function testWithdrawSucceedsOnNonZeroBalance() public {
+        uint256 gameID = game.createNewGame(playerZero, playerOne);
+        uint256[5] memory turns = [uint256(0), 3, 1, 4, 2];
+        utils.playGame(gameID, turns);
+        game.mintForBothPlayers{value: 0.01 ether}(gameID);
 
-    // test minting fails if payment is too low for single and double sided mints
-
-    // test tokenID is calculated correctly for single sided mint
-
-    // test tokenIDs are calculated correctly for double sided mint
+        vm.prank(owner);
+        game.withdraw();
+        assertEq(owner.balance, 0.01 ether);
+    }
 
     
 }
