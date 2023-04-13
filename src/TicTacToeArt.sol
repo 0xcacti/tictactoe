@@ -55,12 +55,12 @@ library TicTacToeArt {
     /// @param playerZero The address of the player who plays as x
     /// @param playerOne The address of the player who plays as o
     /// @return Base 64-encoded JSON of metadata generated from `_internalId` and `_move`.
-    function getMetadata(uint256 gameId, uint256 tokenId, uint256 gameBoard, address playerZero, address playerOne)
+    function getMetadata(uint256 gameID, uint256 tokenId, uint256 gameBoard, address playerZero, address playerOne)
         internal
         view
         returns (string memory)
     {
-        // you need to resolve the fact that gameId does not decode which freaking player won and therefore which nft you are minting
+        // you need to resolve the fact that gameID does not decode which freaking player won and therefore which nft you are minting
         string memory name;
         string memory description;
         string memory image;
@@ -69,14 +69,14 @@ library TicTacToeArt {
         string memory colorSchemeVariables;
         string memory generationMethod;
 
-        (name, description) = getNameAndDescription(gameId, tokenId, gameBoard, playerZero, playerOne);
+        (name, description) = getNameAndDescription(gameID, tokenId, gameBoard, playerZero, playerOne);
 
         // generate game description
 
 
 
         
-        (colorScheme, colorSchemeVariables, generationMethod) = getColorScheme(uint256(keccak256(abi.encodePacked(gameId, tokenId, gameBoard, block.difficulty))));
+        (colorScheme, colorSchemeVariables, generationMethod) = getColorScheme(uint256(keccak256(abi.encodePacked(gameID, tokenId, gameBoard, block.difficulty))));
         console2.log(colorScheme);
         console2.log(colorSchemeVariables);
         console2.log(generationMethod);
@@ -123,14 +123,14 @@ library TicTacToeArt {
         
     }
 
-    function getNameAndDescription(uint256 gameId, uint256 tokenId, uint256 gameBoard, address playerZero, address playerOne) internal pure returns (string memory, string memory) {
+    function getNameAndDescription(uint256 gameID, uint256 tokenId, uint256 gameBoard, address playerZero, address playerOne) internal pure returns (string memory, string memory) {
         string memory name;
         string memory description;
         {
             uint256 winner = gameBoard.getWinner();
             string memory p0 = Strings.toHexString(uint160(playerZero), 20);
             string memory p1 = Strings.toHexString(uint160(playerOne), 20);
-            string memory gameNumber = Strings.toString( gameId / 2);
+            string memory gameNumber = Strings.toString( gameID / 2);
             if (winner == 3) {
                 name = string(abi.encodePacked("Game #", gameNumber, ", Result: Draw"));
                 description = string(abi.encodePacked("Game #", gameNumber, " - Player 0: ", p0, " vs Player 1: ", p1, " - Result: Draw"));

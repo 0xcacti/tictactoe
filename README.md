@@ -3,6 +3,25 @@
 Somewhat optimized tictactoe implementation in solidity. 
 Heavily influenced by fiveoutofnine. 
 
+### To Do 
+- [x] Write core game logic 
+- [x] Test core game logic 
+- [x] Gas optimize core game logic
+- [x] Generate CSS art 
+- [x] Write Art generation contract 
+- [ ] Fix colorscheme generation to be consistent
+- [ ] Test mint logic 
+- [ ] Convert to libstring
+- [ ] Test withdraws
+- [ ] Test art generation logic 
+- [ ] Analyse with slither, halmos
+- [ ] Write comments 
+- [ ] Finish README 
+- [ ] Compile and deploy on every chain at the same address.  
+- [ ] Tweet
+
+
+
 Each game is represented as one uint256.  The bytes are used as follows: 
 
    1  2  3  4  5  6  7  8  9 10 11 12 13 ->

@@ -17,8 +17,8 @@ contract GameBehaviorTest is Test {
     }
 
     function testNewGameHasProperInitialState() public {
-        uint256 gameId = t.createNewGame(playerZero, playerOne);
-        (uint256 game, address _playerZero, address _playerOne) = t.retrieveAllGameInfo(gameId);
+        uint256 gameID = t.createNewGame(playerZero, playerOne);
+        (uint256 game, address _playerZero, address _playerOne) = t.retrieveAllGameInfo(gameID);
         assertEq(game, 0);
         assertEq(_playerZero, playerZero);
         assertEq(_playerOne, playerOne);
@@ -28,22 +28,22 @@ contract GameBehaviorTest is Test {
         uint256 playerZerosTurn = 0;
         uint256 playerOnesTurn = 1;
 
-        uint256 gameId = t.createNewGame(playerZero, playerOne);
-        uint256 gameBoard = t.retrieveGame(gameId);
+        uint256 gameID = t.createNewGame(playerZero, playerOne);
+        uint256 gameBoard = t.retrieveGame(gameID);
 
         vm.prank(playerZero);
-        t.takeTurn(gameId, 8);
-        gameBoard = t.retrieveGame(gameId);
+        t.takeTurn(gameID, 8);
+        gameBoard = t.retrieveGame(gameID);
         assertEq(isolateTurnByte(gameBoard), playerOnesTurn);
 
         vm.prank(playerOne);
-        t.takeTurn(gameId, 7);
-        gameBoard = t.retrieveGame(gameId);
+        t.takeTurn(gameID, 7);
+        gameBoard = t.retrieveGame(gameID);
         assertEq(isolateTurnByte(gameBoard), playerZerosTurn);
 
         vm.prank(playerZero);
-        t.takeTurn(gameId, 6);
-        gameBoard = t.retrieveGame(gameId);
+        t.takeTurn(gameID, 6);
+        gameBoard = t.retrieveGame(gameID);
         assertEq(isolateTurnByte(gameBoard), playerOnesTurn);
     }
 

@@ -6,7 +6,7 @@ import "src/TicTacToe.sol";
 import "test/Utils.sol";
 import {Game} from "src/Game.sol";
 
-contract MintTest is Test {
+contract WithdrawTest is Test {
     TicTacToe game;
     address playerZero;
     address playerOne;

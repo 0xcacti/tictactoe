@@ -20,39 +20,39 @@ contract InvalidPlayTest is Test {
     }
 
     function testRejectMoveAfterGameEnd() public {
-        uint256 gameId = game.createNewGame(playerZero, playerOne);
+        uint256 gameID = game.createNewGame(playerZero, playerOne);
         uint256[6] memory turns = [uint256(0), 3, 1, 4, 2, 5];
         vm.expectRevert(Game.GameOver.selector);
-        utils.playGame(gameId, turns);
+        utils.playGame(gameID, turns);
     }
 
     function testRejectMoveOutOfBounds() public {
-        uint256 gameId = game.createNewGame(playerZero, playerOne);
+        uint256 gameID = game.createNewGame(playerZero, playerOne);
         uint256[1] memory turns = [uint256(9)];
         vm.expectRevert(Game.IllegalMove.selector);
-        utils.playGame(gameId, turns);
+        utils.playGame(gameID, turns);
     }
 
     function testRejectMoveToOccupiedSpace() public {
-        uint256 gameId = game.createNewGame(playerZero, playerOne);
+        uint256 gameID = game.createNewGame(playerZero, playerOne);
         uint256[2] memory turns = [uint256(0), 0];
         vm.expectRevert(Game.IllegalMove.selector);
-        utils.playGame(gameId, turns);
+        utils.playGame(gameID, turns);
     }
 
     function testRejectMoveByWrongPlayer() public {
-        uint256 gameId = game.createNewGame(playerZero, playerOne);
+        uint256 gameID = game.createNewGame(playerZero, playerOne);
         vm.startPrank(playerOne);
         vm.expectRevert(TicTacToe.NotYourTurn.selector);
-        game.takeTurn(gameId, 8);
+        game.takeTurn(gameID, 8);
         vm.stopPrank();
     }
 
     function testRejectMoveByInvalidPlayer() public {
-        uint256 gameId = game.createNewGame(playerZero, playerOne);
+        uint256 gameID = game.createNewGame(playerZero, playerOne);
         vm.startPrank(address(0));
         vm.expectRevert(TicTacToe.InvalidPlayer.selector);
-        game.takeTurn(gameId, 8);
+        game.takeTurn(gameID, 8);
         vm.stopPrank();
     }
 }
