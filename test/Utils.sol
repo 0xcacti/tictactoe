@@ -6,9 +6,9 @@ import "forge-std/Test.sol";
 import {Game} from "src/Game.sol";
 
 contract Utils is Test {
-    TicTacToe game;
-    address playerZero;
-    address playerOne;
+    TicTacToe immutable game;
+    address immutable playerZero;
+    address immutable playerOne;
     address currentPlayer;
 
     constructor(TicTacToe _game, address _playerZero, address _playerOne) {

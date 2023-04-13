@@ -4,9 +4,8 @@ pragma solidity ^0.8.17;
 import {Base64} from "src/Base64.sol";
 import {Game} from "src/Game.sol";
 import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
-import {IColormapRegistry} from "@/contracts/interfaces/IColormapRegistry.sol";
 
-/// @title A library that generates HTML art for TicTacToe
+/// @title A library that generates HTML art for TicTacToe - Heavily influenced by fiveoutofnine
 /// @author 0xcacti
 /// @notice Below details how the metadata and art are generated:
 
@@ -19,7 +18,7 @@ import {IColormapRegistry} from "@/contracts/interfaces/IColormapRegistry.sol";
 /// The art is generated as HTML code with in-line CSS (0 JS) where color scheme is chosen off of
 /// a seed value. The art is base 64-encoded and stored in the metadata.
 /// ==========================================Attributes============================================
-///
+/// 
 
 // "attributes": [
 //     {
@@ -46,8 +45,7 @@ library TicTacToeArt {
     bytes32 internal constant HEXADECIMAL_DIGITS = "0123456789ABCDEF";
     bytes32 internal constant FILE_NAMES = "abcdef";
 
-    /// @notice Takes in data for a given TicTacToe NFT and outputs its metadata in JSON form.
-    /// Refer to {TicTacToeArt} for details.
+    /// @notice Takes in data for a given TicTacToe NFT and outputs its Base64-encoded metadata.
     /// @dev The output is base 64-encoded.
     /// @param gameBoard A bitpacked uint256 representing the game board (see Game.sol).
     /// @param playerZero The address of the player who plays as x
@@ -55,7 +53,7 @@ library TicTacToeArt {
     /// @return Base 64-encoded JSON of metadata generated from `_internalId` and `_move`.
     function getMetadata(uint256 gameID, uint256 tokenID, uint256 gameBoard, address playerZero, address playerOne)
         internal
-        view
+        pure
         returns (string memory)
     {
         // you need to resolve the fact that gameID does not decode which freaking player won and therefore which nft you are minting
@@ -67,13 +65,12 @@ library TicTacToeArt {
         string memory colorSchemeVariables;
         string memory colorThemeStyle;
 
-        (name, description) = getNameAndDescription(gameID, tokenID, gameBoard, playerZero, playerOne);
+        (name, description) = getNameAndDescription(gameID, gameBoard, playerZero, playerOne);
 
         (colorScheme, colorSchemeVariables, colorThemeStyle) =
             getColorScheme(uint256(keccak256(abi.encodePacked(tokenID, gameBoard))));
 
         image = getImage(gameBoard, colorSchemeVariables);
-        image = string(Base64.encode(abi.encodePacked("<style> :root { ", colorSchemeVariables, " } ", image)));
 
         attributes = string(
             abi.encodePacked(
@@ -105,9 +102,14 @@ library TicTacToeArt {
         );
     }
 
+    /// @notice Takes in data for a given TicTacToe NFT and outputs its name and description for json metadata
+    /// @param gameID The game ID
+    /// @param gameBoard A bitpacked uint256 representing the game board (see Game.sol).
+    /// @param playerZero The address of the player who plays as x
+    /// @param playerOne The address of the player who plays as o
+    /// @return name and description of the NFT
     function getNameAndDescription(
         uint256 gameID,
-        uint256 tokenID,
         uint256 gameBoard,
         address playerZero,
         address playerOne
@@ -144,6 +146,11 @@ library TicTacToeArt {
         return (name, description);
     }
 
+    /// @notice Takes in data for a given TicTacToe NFT and generates a color scheme for the NFT
+    /// @dev return variables are strings for the colorScheme, colorSchemeVariables, colorThemeStyle
+    /// colorSchemeVariables is a string of CSS variables that are used in the HTML code
+    /// @param _seed A seed value for the color scheme generation
+    /// @return colorScheme, colorSchemeVariables, colorThemeStyle
     function getColorScheme(uint256 _seed) internal pure returns (string memory, string memory, string memory) {
         uint256 colorTheme;
         string memory colorThemeName;
@@ -183,7 +190,7 @@ library TicTacToeArt {
                     toColorHexString((colorTheme >> 0x30) & 0xFFFFFF),
                     ";--d:",
                     toColorHexString((colorTheme >> 0x18) & 0xFFFFFF),
-                    ";--:",
+                    ";--e:",
                     toColorHexString(colorTheme & 0xFFFFFF),
                     ";"
                 )
@@ -193,6 +200,11 @@ library TicTacToeArt {
         return (colorThemeName, colorThemeVariables, colorThemeStyle);
     }
 
+    /// @notice Takes in data for a given TicTacToe NFT and generates the html data for the image
+    /// @dev crazy scoping is used to avoid stack too deep errors
+    /// @param _board A bitpacked uint256 representing the game board (see Game.sol).
+    /// @param colorSchemeVariables A string of CSS variables that are used in the HTML code
+    /// @return image The html data for the image
     function getImage(uint256 _board, string memory colorSchemeVariables) internal pure returns (string memory) {
         string memory image;
         {
@@ -329,8 +341,7 @@ library TicTacToeArt {
                 }
             }
         }
-
-        return string(abi.encodePacked(image, "</div></section>"));
+        return string(Base64.encode(abi.encodePacked("<style> :root { ", colorSchemeVariables, " } ", image, "</div></section>")));
     }
 
     /// @notice Computes the complement of 24-bit colors.

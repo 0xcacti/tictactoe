@@ -7,6 +7,10 @@ import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
 import {TicTacToeArt} from "src/TicTacToeArt.sol";
 import {Game} from "src/Game.sol";
 
+/// @title TicTacToe
+/// @author 0xcacti
+/// @notice Below is the contract for handling the state of the tictactoe games and minting the tokens
+
 contract TicTacToe is ERC721, Owned {
     using Game for uint256;
     using Strings for uint256;
@@ -19,7 +23,7 @@ contract TicTacToe is ERC721, Owned {
     address constant OWNER_ADDRESS = 0xB95777719Ae59Ea47A99e744AfA59CdcF1c410a1;
 
     // @notice mint price
-    uint256 MINT_PRICE = 0.005 ether;
+    uint256 constant MINT_PRICE = 0.005 ether;
 
     /*//////////////////////////////////////////////////////////////
                                STORAGE

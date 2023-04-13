@@ -10,10 +10,10 @@ Heavily influenced by fiveoutofnine.
 - [x] Generate CSS art 
 - [x] Write Art generation contract 
 - [ ] Fix colorscheme generation to be consistent
-- [ ] Test mint logic 
-- [ ] Test withdraws
+- [x] Test mint logic 
+- [x] Test withdraws
 - [ ] Test art generation logic 
-- [ ] Analyse with slither, halmos
+- [x] Analyse with slither, halmos
 - [ ] Write comments 
 - [ ] Finish README 
 - [ ] Compile and deploy on every chain at the same address.  
