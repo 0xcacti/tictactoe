@@ -35,8 +35,8 @@ import {IColormapRegistry} from "@/contracts/interfaces/IColormapRegistry.sol";
 //         "value": "Nord"
 //     },
 //     {
-//         "trait_type": "Color Generation",
-//         "value": "Curated"
+//         "trait_type": "Color Theme Sytle",
+//         "value": "Void"
 //     }
 // ]
 
