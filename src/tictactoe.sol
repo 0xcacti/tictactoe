@@ -1,17 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import "solmate/tokens/ERC721.sol";
-import "solmate/auth/Owned.sol";
-import "openzeppelin-contracts/contracts/utils/Strings.sol";
-
+import {ERC721} from "solmate/tokens/ERC721.sol";
+import {Owned} from "solmate/auth/Owned.sol";
+import {LibString} from "solmate/utils/LibString.sol";
 import {TicTacToeArt} from "src/TicTacToeArt.sol";
 import {Game} from "src/Game.sol";
 
 contract TicTacToe is ERC721, Owned {
 
     using Game for uint256;
-    using Strings for uint256;
+    using LibString for uint256;
 
     /*//////////////////////////////////////////////////////////////
                                CONSTANTS
@@ -33,7 +32,7 @@ contract TicTacToe is ERC721, Owned {
     /// @notice the baseURI for the tokens - for domain resolution
     string private baseURI;
 
-    /// @notice mapping of tokenIds to their minted status
+    /// @notice mapping of tokenIDs to their minted status
     mapping(uint256 => bool) minted;
 
     /// @notice mapping of gameIDs to their bitpacked player zero address and gameboard
@@ -169,21 +168,15 @@ contract TicTacToe is ERC721, Owned {
             revert GameNotOver();
         }
 
-        uint256 tokenId = (_gameID << 160) | uint256(uint160(playerNumber == 0 ? playerZero : playerOne));
-        minted[tokenId] = true;
-        _safeMint(playerNumber == 0 ? playerZero : playerOne, tokenId);
+        uint256 tokenID = (_gameID << 160) | uint256(uint160(playerNumber == 0 ? playerZero : playerOne));
+        minted[tokenID] = true;
+        _safeMint(playerNumber == 0 ? playerZero : playerOne, tokenID);
     }
 
 
     /// @notice mint an NFT for both players in a given gameID
     /// @param _gameID the gameID for which to mint NFTs
     function mintForBothPlayers(uint256 _gameID) external payable {
-
-
-        // mint two NFTs
-        // one to playerZero
-        // one to playerOne
-        // this can be maybe gameID bit packed with player Address
 
         (uint256 game, address playerZero, address playerOne) = retrieveAllGameInfo(_gameID);
 
@@ -195,13 +188,13 @@ contract TicTacToe is ERC721, Owned {
             revert GameNotOver();
         }
 
-        uint256 playerZeroTokenId = (_gameID << 160) | uint256(uint160(playerZero));
-        uint256 playerOneTokenId = ((_gameID + 1) << 160) | uint256(uint160(playerOne));
+        uint256 playerZerotokenID = (_gameID << 160) | uint256(uint160(playerZero));
+        uint256 playerOnetokenID = ((_gameID + 1) << 160) | uint256(uint160(playerOne));
 
-        minted[playerZeroTokenId] = true;
-        minted[playerOneTokenId] = true;
-        _safeMint(playerZero, playerZeroTokenId);
-        _safeMint(playerOne, playerOneTokenId);
+        minted[playerZerotokenID] = true;
+        minted[playerOnetokenID] = true;
+        _safeMint(playerZero, playerZerotokenID);
+        _safeMint(playerOne, playerOnetokenID);
 
     }
 
@@ -210,20 +203,30 @@ contract TicTacToe is ERC721, Owned {
                                METADATA
     //////////////////////////////////////////////////////////////*/
 
+    /// @notice set the baseURI for the contract
+    /// @param _baseURI the baseURI to set
     function setBaseURI(string memory _baseURI) external onlyOwner {
         baseURI = _baseURI;
     }
 
-    function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
-        require(_ownerOf[_tokenId] != address(0), "NOT_MINTED");
+    /// @notice get the baseURI for the contract
+    /// @dev return metadata if baseURI is not previously set
+    /// @param _tokenID the tokenID for which to retrieve metadata
+    /// @return the tokenURI for the contract
+    function tokenURI(uint256 _tokenID) public view virtual override returns (string memory) {
+        require(_ownerOf[_tokenID] != address(0), "NOT_MINTED");
         return
-            (bytes(baseURI)).length == 0 ? _tokenURI(_tokenId) : string(abi.encodePacked(baseURI, _tokenId.toString()));
+            (bytes(baseURI)).length == 0 ? _tokenURI(_tokenID) : string(abi.encodePacked(baseURI, _tokenID.toString()));
     }
 
-    function _tokenURI(uint256 _tokenId) public view returns (string memory) {
-        uint256 gameIDComponent = _tokenId >> 160;
+    /// @notice get the underlying tokenURI (metadata) for a given tokenID 
+    /// @param _tokenID the tokenID for which to retrieve metadata
+    /// @return the tokenURI for the contract
+    function _tokenURI(uint256 _tokenID) public view returns (string memory) {
+        require(_ownerOf[_tokenID] != address(0), "NOT_MINTED");
+        uint256 gameIDComponent = _tokenID >> 160;
         uint256 _gameID = (gameIDComponent % 2 == 0) ? gameIDComponent : gameIDComponent - 1;
         (uint256 game, address playerZero, address playerOne) = retrieveAllGameInfo(_gameID);
-        return TicTacToeArt.getMetadata(_gameID, _tokenId, game, playerZero, playerOne);
+        return TicTacToeArt.getMetadata(_gameID, _tokenID, game, playerZero, playerOne);
     }
 }

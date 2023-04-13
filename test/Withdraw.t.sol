@@ -26,8 +26,8 @@ contract WithdrawTest is Test {
         uint256[9] memory turns = [uint256(1), 0, 3, 2, 4, 5, 6, 7, 8];
         utils.playGame(gameID, turns);
         console.log(gameID);
-        uint256 tokenId = (gameID << 160) | uint256(uint160(playerZero));
-        string memory meow = game.tokenURI(tokenId);
+        uint256 tokenID = (gameID << 160) | uint256(uint160(playerZero));
+        string memory meow = game.tokenURI(tokenID);
         console2.log(meow);
     }
 

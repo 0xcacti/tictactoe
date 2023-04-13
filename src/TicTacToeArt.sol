@@ -3,9 +3,8 @@ pragma solidity ^0.8.17;
 
 import {Base64} from "src/Base64.sol";
 import {Game} from "src/Game.sol";
+import {LibString} from "solmate/utils/LibString.sol";
 import "openzeppelin-contracts/contracts/utils/Strings.sol";
-import "forge-std/Test.sol";
-
 
 /// @title A library that generates HTML art for TicTacToe
 /// @author 0xcacti
@@ -42,7 +41,7 @@ import "forge-std/Test.sol";
 // ]
 
 library TicTacToeArt {
-    using Strings for uint256;
+    using LibString for uint256;
     using Game for uint256;
 
     bytes32 internal constant HEXADECIMAL_DIGITS = "0123456789ABCDEF";
@@ -55,7 +54,7 @@ library TicTacToeArt {
     /// @param playerZero The address of the player who plays as x
     /// @param playerOne The address of the player who plays as o
     /// @return Base 64-encoded JSON of metadata generated from `_internalId` and `_move`.
-    function getMetadata(uint256 gameID, uint256 tokenId, uint256 gameBoard, address playerZero, address playerOne)
+    function getMetadata(uint256 gameID, uint256 tokenID, uint256 gameBoard, address playerZero, address playerOne)
         internal
         view
         returns (string memory)
@@ -69,18 +68,10 @@ library TicTacToeArt {
         string memory colorSchemeVariables;
         string memory generationMethod;
 
-        (name, description) = getNameAndDescription(gameID, tokenId, gameBoard, playerZero, playerOne);
+        (name, description) = getNameAndDescription(gameID, tokenID, gameBoard, playerZero, playerOne);
 
-        // generate game description
-
-
-
-        
-        (colorScheme, colorSchemeVariables, generationMethod) = getColorScheme(uint256(keccak256(abi.encodePacked(gameID, tokenId, gameBoard, block.difficulty))));
-        console2.log(colorScheme);
-        console2.log(colorSchemeVariables);
-        console2.log(generationMethod);
-
+        (colorScheme, colorSchemeVariables, generationMethod) = getColorScheme(uint256(keccak256(abi.encodePacked(gameID, tokenID, gameBoard, block.difficulty))));
+       
         image = getImage(gameBoard, colorSchemeVariables);
         image = string(
             abi.encodePacked(
@@ -90,8 +81,8 @@ library TicTacToeArt {
                 image
             )
         );
-        console2.log(image);
-        console2.log();
+
+
         attributes = string(
             abi.encodePacked(
                 '[{"trait_type":"Color Theme","value":"',
@@ -108,7 +99,7 @@ library TicTacToeArt {
             return string(
                 // abi.encodePacked(
                 //     "data:application/json;base64,",
-                //     Base64.encode(
+            //     Base64.encode(
                 abi.encodePacked(
                     '{"name":"',
                     name,
@@ -123,7 +114,7 @@ library TicTacToeArt {
         
     }
 
-    function getNameAndDescription(uint256 gameID, uint256 tokenId, uint256 gameBoard, address playerZero, address playerOne) internal pure returns (string memory, string memory) {
+    function getNameAndDescription(uint256 gameID, uint256 tokenID, uint256 gameBoard, address playerZero, address playerOne) internal pure returns (string memory, string memory) {
         string memory name;
         string memory description;
         {
