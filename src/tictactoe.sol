@@ -3,14 +3,13 @@ pragma solidity ^0.8.13;
 
 import {ERC721} from "solmate/tokens/ERC721.sol";
 import {Owned} from "solmate/auth/Owned.sol";
-import {LibString} from "solmate/utils/LibString.sol";
+import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
 import {TicTacToeArt} from "src/TicTacToeArt.sol";
 import {Game} from "src/Game.sol";
 
 contract TicTacToe is ERC721, Owned {
-
     using Game for uint256;
-    using LibString for uint256;
+    using Strings for uint256;
 
     /*//////////////////////////////////////////////////////////////
                                CONSTANTS
@@ -19,7 +18,7 @@ contract TicTacToe is ERC721, Owned {
     /// @notice The owner address.
     address constant OWNER_ADDRESS = 0xB95777719Ae59Ea47A99e744AfA59CdcF1c410a1;
 
-    // @notice mint price 
+    // @notice mint price
     uint256 MINT_PRICE = 0.005 ether;
 
     /*//////////////////////////////////////////////////////////////
@@ -41,12 +40,11 @@ contract TicTacToe is ERC721, Owned {
     /// @notice mapping of gameIDs to their player one address
     mapping(uint256 => address) mapOfPlayerOnes;
 
-
     /*//////////////////////////////////////////////////////////////
                                ERRORS
     //////////////////////////////////////////////////////////////*/
 
-    /// @notice error on moving out of turn 
+    /// @notice error on moving out of turn
     error NotYourTurn();
 
     /// @notice error on invalid player
@@ -55,24 +53,21 @@ contract TicTacToe is ERC721, Owned {
     /// @notice error on invalid payment for mint
     error IncorrectPayment();
 
-    /// @notice error on illegal actions before game is over 
+    /// @notice error on illegal actions before game is over
     error GameNotOver();
 
     /*//////////////////////////////////////////////////////////////
                         CONSTRUCTOR AND WITHDRAW 
     //////////////////////////////////////////////////////////////*/
 
-    /// @notice Deploy the contract and set the owner 
+    /// @notice Deploy the contract and set the owner
     constructor() ERC721("TicTacToe", "XOXO") Owned(OWNER_ADDRESS) {}
 
     /// @notice Withdraw contract funds to the contract owner
     function withdraw() external onlyOwner {
-        (bool success, ) = payable(owner).call{value: address(this).balance}(
-            ""
-        );
+        (bool success,) = payable(owner).call{value: address(this).balance}("");
         require(success);
     }
-
 
     /*//////////////////////////////////////////////////////////////
                                 GAMEPLAY
@@ -92,7 +87,7 @@ contract TicTacToe is ERC721, Owned {
     }
 
     /// @notice retrieve all game info for a given gameID
-    /// @dev the game is bitpacked with the gameboard in the first 96 bits 
+    /// @dev the game is bitpacked with the gameboard in the first 96 bits
     /// and playerZero in last 160 bits of the game storage slot
     /// @param _gameID the gameID to retrieve info for
     /// @return the gameID, playerZero address, and playerOne address
@@ -103,7 +98,7 @@ contract TicTacToe is ERC721, Owned {
 
     /// @notice retrieve the game board for a given gameID
     /// @param _gameID the gameID for which to retrieve game info
-    /// @return the current game board 
+    /// @return the current game board
     function retrieveGame(uint256 _gameID) public view returns (uint256) {
         return mapOfPlayerZerosAndGames[_gameID] >> 160;
     }
@@ -111,9 +106,9 @@ contract TicTacToe is ERC721, Owned {
     /// @notice take turn in tictactoe game
     /// @param _gameID the gameID for which to take a turn
     /// @param _move the move to take in the game moves are 0-8 indexing a tictactoe board left to right, top to bottom
-    /// 0 1 2 
+    /// 0 1 2
     /// 3 4 5
-    /// 6 7 8    
+    /// 6 7 8
     function takeTurn(uint256 _gameID, uint256 _move) external {
         unchecked {
             (uint256 game, address playerZero, address playerOne) = retrieveAllGameInfo(_gameID);
@@ -144,12 +139,11 @@ contract TicTacToe is ERC721, Owned {
         }
     }
 
-
     /*//////////////////////////////////////////////////////////////
                                MINTING
     //////////////////////////////////////////////////////////////*/
 
-    /// @notice mint an NFT for a given gameID and player number 
+    /// @notice mint an NFT for a given gameID and player number
     /// @dev playerNumber is 0 for playerZero and 1 for playerOne
     /// @param _gameID the gameID for which to mint an NFT
     /// @param playerNumber the player number for which to mint an NFT
@@ -173,11 +167,9 @@ contract TicTacToe is ERC721, Owned {
         _safeMint(playerNumber == 0 ? playerZero : playerOne, tokenID);
     }
 
-
     /// @notice mint an NFT for both players in a given gameID
     /// @param _gameID the gameID for which to mint NFTs
     function mintForBothPlayers(uint256 _gameID) external payable {
-
         (uint256 game, address playerZero, address playerOne) = retrieveAllGameInfo(_gameID);
 
         if (msg.value != 2 * MINT_PRICE) {
@@ -195,9 +187,7 @@ contract TicTacToe is ERC721, Owned {
         minted[playerOnetokenID] = true;
         _safeMint(playerZero, playerZerotokenID);
         _safeMint(playerOne, playerOnetokenID);
-
     }
-
 
     /*//////////////////////////////////////////////////////////////
                                METADATA
@@ -219,7 +209,7 @@ contract TicTacToe is ERC721, Owned {
             (bytes(baseURI)).length == 0 ? _tokenURI(_tokenID) : string(abi.encodePacked(baseURI, _tokenID.toString()));
     }
 
-    /// @notice get the underlying tokenURI (metadata) for a given tokenID 
+    /// @notice get the underlying tokenURI (metadata) for a given tokenID
     /// @param _tokenID the tokenID for which to retrieve metadata
     /// @return the tokenURI for the contract
     function _tokenURI(uint256 _tokenID) public view returns (string memory) {

@@ -11,7 +11,6 @@ Heavily influenced by fiveoutofnine.
 - [x] Write Art generation contract 
 - [ ] Fix colorscheme generation to be consistent
 - [ ] Test mint logic 
-- [ ] Convert to libstring
 - [ ] Test withdraws
 - [ ] Test art generation logic 
 - [ ] Analyse with slither, halmos

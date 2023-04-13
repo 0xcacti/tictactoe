@@ -28,7 +28,6 @@ contract MintTest is Test {
         uint256 tokenID = (gameID << 160) | uint256(uint160(playerZero));
         string memory metadata = game.tokenURI(tokenID);
         console2.log(metadata);
-
     }
 
     // test return metadata matches pre-calculated base64 encoded string for double sided mint
@@ -41,7 +40,7 @@ contract MintTest is Test {
         string memory playerZeroMetadata = game.tokenURI(tokenID);
         console2.log(playerZeroMetadata);
         console2.log();
-        tokenID = (gameID+1 << 160) | uint256(uint160(playerOne));
+        tokenID = (gameID + 1 << 160) | uint256(uint160(playerOne));
         string memory playerOneMetadata = game.tokenURI(tokenID);
         console2.log(playerOneMetadata);
     }
@@ -67,7 +66,5 @@ contract MintTest is Test {
         utils.playGame(gameID, turns);
         vm.expectRevert(TicTacToe.IncorrectPayment.selector);
         game.mintForBothPlayers{value: 0.009 ether}(gameID);
-
     }
-    
 }

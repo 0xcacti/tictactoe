@@ -3,7 +3,6 @@ pragma solidity ^0.8.17;
 
 import {Base64} from "src/Base64.sol";
 import {Game} from "src/Game.sol";
-import {LibString} from "solmate/utils/LibString.sol";
 import "openzeppelin-contracts/contracts/utils/Strings.sol";
 
 /// @title A library that generates HTML art for TicTacToe
@@ -41,7 +40,6 @@ import "openzeppelin-contracts/contracts/utils/Strings.sol";
 // ]
 
 library TicTacToeArt {
-    using LibString for uint256;
     using Game for uint256;
 
     bytes32 internal constant HEXADECIMAL_DIGITS = "0123456789ABCDEF";
@@ -70,67 +68,73 @@ library TicTacToeArt {
 
         (name, description) = getNameAndDescription(gameID, tokenID, gameBoard, playerZero, playerOne);
 
-        (colorScheme, colorSchemeVariables, generationMethod) = getColorScheme(uint256(keccak256(abi.encodePacked(gameID, tokenID, gameBoard, block.difficulty))));
-       
-        image = getImage(gameBoard, colorSchemeVariables);
-        image = string(
-            abi.encodePacked(
-                "<style> :root { ",
-                colorSchemeVariables,
-                " } ",
-                image
-            )
-        );
+        (colorScheme, colorSchemeVariables, generationMethod) =
+            getColorScheme(uint256(keccak256(abi.encodePacked(tokenID, gameBoard))));
 
+        image = getImage(gameBoard, colorSchemeVariables);
+        image = string(abi.encodePacked("<style> :root { ", colorSchemeVariables, " } ", image));
 
         attributes = string(
             abi.encodePacked(
                 '[{"trait_type":"Color Theme","value":"',
-                colorScheme, 
+                colorScheme,
                 '"},{"trait_type":"Color Generation","value":"',
                 generationMethod,
                 '"}]}'
             )
         );
-        
-        
 
-            // return the ERC721 Metadata JSON Schema
-            return string(
-                // abi.encodePacked(
-                //     "data:application/json;base64,",
+        // return the ERC721 Metadata JSON Schema
+        return string(
+            // abi.encodePacked(
+            //     "data:application/json;base64,",
             //     Base64.encode(
-                abi.encodePacked(
-                    '{"name":"',
-                    name,
-                    '","description":',
-                    description,
-                    '","image_url":"data:text/html;base64,',
-                    image,
-                    '"attributes":',
-                    attributes
-                )
-            );
-        
+            abi.encodePacked(
+                '{"name":"',
+                name,
+                '","description":',
+                description,
+                '","image_url":"data:text/html;base64,',
+                image,
+                '"attributes":',
+                attributes
+            )
+        );
     }
 
-    function getNameAndDescription(uint256 gameID, uint256 tokenID, uint256 gameBoard, address playerZero, address playerOne) internal pure returns (string memory, string memory) {
+    function getNameAndDescription(
+        uint256 gameID,
+        uint256 tokenID,
+        uint256 gameBoard,
+        address playerZero,
+        address playerOne
+    ) internal pure returns (string memory, string memory) {
         string memory name;
         string memory description;
         {
             uint256 winner = gameBoard.getWinner();
             string memory p0 = Strings.toHexString(uint160(playerZero), 20);
             string memory p1 = Strings.toHexString(uint160(playerOne), 20);
-            string memory gameNumber = Strings.toString( gameID / 2);
+            string memory gameNumber = Strings.toString(gameID / 2);
             if (winner == 3) {
                 name = string(abi.encodePacked("Game #", gameNumber, ", Result: Draw"));
-                description = string(abi.encodePacked("Game #", gameNumber, " - Player 0: ", p0, " vs Player 1: ", p1, " - Result: Draw"));
+                description = string(
+                    abi.encodePacked("Game #", gameNumber, " - Player 0: ", p0, " vs Player 1: ", p1, " - Result: Draw")
+                );
             } else if (winner == 1) {
                 name = string(abi.encodePacked("Game #", gameNumber, ", Result: Player Zero Wins!"));
-                description = string(abi.encodePacked("Game #", gameNumber, " - Player 0: ", p0, " vs Player 1: ", p1, " - Result: Player Zero Wins!"));
+                description = string(
+                    abi.encodePacked(
+                        "Game #", gameNumber, " - Player 0: ", p0, " vs Player 1: ", p1, " - Result: Player Zero Wins!"
+                    )
+                );
             } else {
                 name = string(abi.encodePacked("Game #", gameNumber, ", Result: Player One Wins!"));
-                description = string(abi.encodePacked("Game #", gameNumber, " - Player 0: ", p0,  " vs Player 1: ", p1, " - Result: Player One Wins!"));
+                description = string(
+                    abi.encodePacked(
+                        "Game #", gameNumber, " - Player 0: ", p0, " vs Player 1: ", p1, " - Result: Player One Wins!"
+                    )
+                );
             }
         }
 
@@ -167,7 +171,8 @@ library TicTacToeArt {
             } else {
                 _seed >>= 5;
                 generationMethod = "curated";
-                colorThemeName = string(["Nord", "B/W", "Candycorn", "RGB", "VSCode", "Neon", "Jungle", "Corn"][_seed & 7]);
+                colorThemeName =
+                    string(["Nord", "B/W", "Candycorn", "RGB", "VSCode", "Neon", "Jungle", "Corn"][_seed & 7]);
                 colorTheme = [
                     0x8FBCBBEBCB8BD087705E81ACB48EAD000000FFFFFFFFFFFFFFFFFF000000,
                     0x0D3B66F4D35EEE964BFAF0CAF95738FFFF0000FF000000FFFF0000FFFF00,
@@ -193,8 +198,8 @@ library TicTacToeArt {
             );
         }
 
-       //  0x000000000000000000 1c1719 735d65 392e32 e7bacb 184534
-      // 0xfde8e1 f4a386 fad1c3 e8460d 17b9f2
+        //  0x000000000000000000 1c1719 735d65 392e32 e7bacb 184534
+        // 0xfde8e1 f4a386 fad1c3 e8460d 17b9f2
         return (colorThemeName, colorThemeVariables, generationMethod);
     }
 
@@ -204,7 +209,7 @@ library TicTacToeArt {
             image = string(
                 abi.encodePacked(
                     image,
-                    "body {background: var(--a);} .container { position: fixed;top: 0;bottom: 0;left: 0;right: 0;margin: auto;height: 300px;width: 300px;flex-direction: column;}", 
+                    "body {background: var(--a);} .container { position: fixed;top: 0;bottom: 0;left: 0;right: 0;margin: auto;height: 300px;width: 300px;flex-direction: column;}",
                     " .crossVerticalLeft {width: 8px;position: absolute;height: 100%;left: 95px;background: var(--b);border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
                     " .crossHorizontalTop {width: 100%;position: absolute;height: 8px;top: 95px;background: var(--b);border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
                     " .crossHorizontalBottom {width: 100%;position: absolute;height: 8px;top: 195px;background: var(--b);border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
@@ -271,38 +276,47 @@ library TicTacToeArt {
 
         image = string(
             abi.encodePacked(
-                image, 
-                "</style>", 
+                image,
+                "</style>",
                 "<section><div class='container'><div class='crossVerticalLeft'></div><div class='crossVerticalRight'></div><div class='crossHorizontalTop'></div><div class='crossHorizontalBottom'></div>"
-                )
-            );
-        
+            )
+        );
+
         uint256 piece = 0;
         for (uint256 i = 0; i < 9; i++) {
             piece = (_board >> (i * 8)) & 0xff; // do I need the whole byte
             if (piece == 0) {
                 continue;
-            } else if (piece == 1) { // we're gonna place an x
+            } else if (piece == 1) {
+                // we're gonna place an x
                 if (i == 0) {
-                    image = string(abi.encodePacked(image, "<div class='x00Left'></div>", "<div class='x00Right'></div>"));
+                    image =
+                        string(abi.encodePacked(image, "<div class='x00Left'></div>", "<div class='x00Right'></div>"));
                 } else if (i == 1) {
-                    image = string(abi.encodePacked(image, "<div class='x01Left'></div>", "<div class='x01Right'></div>"));
+                    image =
+                        string(abi.encodePacked(image, "<div class='x01Left'></div>", "<div class='x01Right'></div>"));
                 } else if (i == 2) {
-                    image = string(abi.encodePacked(image, "<div class='x02Left'></div>", "<div class='x02Right'></div>"));
+                    image =
+                        string(abi.encodePacked(image, "<div class='x02Left'></div>", "<div class='x02Right'></div>"));
                 } else if (i == 3) {
-                    image = string(abi.encodePacked(image, "<div class='x10Left'></div>", "<div class='x10Right'></div>"));
+                    image =
+                        string(abi.encodePacked(image, "<div class='x10Left'></div>", "<div class='x10Right'></div>"));
                 } else if (i == 4) {
-                    image = string(abi.encodePacked(image, "<div class='x11Left'></div>", "<div class='x11Right'></div>"));
+                    image =
+                        string(abi.encodePacked(image, "<div class='x11Left'></div>", "<div class='x11Right'></div>"));
                 } else if (i == 5) {
-                    image = string(abi.encodePacked(image, "<div class='x12Left'></div>", "<div class='x12Right'></div>"));
+                    image =
+                        string(abi.encodePacked(image, "<div class='x12Left'></div>", "<div class='x12Right'></div>"));
                 } else if (i == 6) {
-                    image = string(abi.encodePacked(image, "<div class='x20Left'></div>", "<div class='x20Right'></div>"));
+                    image =
+                        string(abi.encodePacked(image, "<div class='x20Left'></div>", "<div class='x20Right'></div>"));
                 } else if (i == 7) {
-                    image = string(abi.encodePacked(image, "<div class='x21Left'></div>", "<div class='x21Right'></div>"));
+                    image =
+                        string(abi.encodePacked(image, "<div class='x21Left'></div>", "<div class='x21Right'></div>"));
                 } else if (i == 8) {
-                    image = string(abi.encodePacked(image, "<div class='x22Left'></div>", "<div class='x22Right'></div>"));
+                    image =
+                        string(abi.encodePacked(image, "<div class='x22Left'></div>", "<div class='x22Right'></div>"));
                 }
-
             } else if (piece == 2) {
                 if (i == 0) {
                     image = string(abi.encodePacked(image, "<div class='o00'></div>"));
@@ -324,7 +338,6 @@ library TicTacToeArt {
                     image = string(abi.encodePacked(image, "<div class='o22'></div>"));
                 }
             }
-
         }
 
         return string(abi.encodePacked(image, "</div></section>"));

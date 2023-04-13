@@ -43,6 +43,4 @@ contract WithdrawTest is Test {
         game.withdraw();
         assertEq(owner.balance, 0.01 ether);
     }
-
-    
 }
