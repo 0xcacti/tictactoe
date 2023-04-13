@@ -3,7 +3,8 @@ pragma solidity ^0.8.17;
 
 import {Base64} from "src/Base64.sol";
 import {Game} from "src/Game.sol";
-import "openzeppelin-contracts/contracts/utils/Strings.sol";
+import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
+import {IColormapRegistry} from "@/contracts/interfaces/IColormapRegistry.sol";
 
 /// @title A library that generates HTML art for TicTacToe
 /// @author 0xcacti
@@ -64,40 +65,42 @@ library TicTacToeArt {
         string memory attributes;
         string memory colorScheme;
         string memory colorSchemeVariables;
-        string memory generationMethod;
+        string memory colorThemeStyle;
 
         (name, description) = getNameAndDescription(gameID, tokenID, gameBoard, playerZero, playerOne);
 
-        (colorScheme, colorSchemeVariables, generationMethod) =
+        (colorScheme, colorSchemeVariables, colorThemeStyle) =
             getColorScheme(uint256(keccak256(abi.encodePacked(tokenID, gameBoard))));
 
         image = getImage(gameBoard, colorSchemeVariables);
-        image = string(abi.encodePacked("<style> :root { ", colorSchemeVariables, " } ", image));
+        image = string(Base64.encode(abi.encodePacked("<style> :root { ", colorSchemeVariables, " } ", image)));
 
         attributes = string(
             abi.encodePacked(
                 '[{"trait_type":"Color Theme","value":"',
                 colorScheme,
-                '"},{"trait_type":"Color Generation","value":"',
-                generationMethod,
+                '"},{"trait_type":"Color Theme Style","value":"',
+                colorThemeStyle,
                 '"}]}'
             )
         );
 
         // return the ERC721 Metadata JSON Schema
         return string(
-            // abi.encodePacked(
-            //     "data:application/json;base64,",
-            //     Base64.encode(
             abi.encodePacked(
-                '{"name":"',
-                name,
-                '","description":',
-                description,
-                '","image_url":"data:text/html;base64,',
-                image,
-                '"attributes":',
-                attributes
+                "data:application/json;base64,",
+                Base64.encode(
+                    abi.encodePacked(
+                        '{"name":"',
+                        name,
+                        '","description":',
+                        description,
+                        '","image_url":"data:text/html;base64,',
+                        image,
+                        '","attributes":',
+                        attributes
+                    )
+                )
             )
         );
     }
@@ -119,20 +122,20 @@ library TicTacToeArt {
             if (winner == 3) {
                 name = string(abi.encodePacked("Game #", gameNumber, ", Result: Draw"));
                 description = string(
-                    abi.encodePacked("Game #", gameNumber, " - Player 0: ", p0, " vs Player 1: ", p1, " - Result: Draw")
+                    abi.encodePacked('"Game #', gameNumber, " - Player 0: ", p0, " vs Player 1: ", p1, " - Result: Draw")
                 );
             } else if (winner == 1) {
                 name = string(abi.encodePacked("Game #", gameNumber, ", Result: Player Zero Wins!"));
                 description = string(
                     abi.encodePacked(
-                        "Game #", gameNumber, " - Player 0: ", p0, " vs Player 1: ", p1, " - Result: Player Zero Wins!"
+                        '"Game #', gameNumber, " - Player 0: ", p0, " vs Player 1: ", p1, " - Result: Player Zero Wins!"
                     )
                 );
             } else {
                 name = string(abi.encodePacked("Game #", gameNumber, ", Result: Player One Wins!"));
                 description = string(
                     abi.encodePacked(
-                        "Game #", gameNumber, " - Player 0: ", p0, " vs Player 1: ", p1, " - Result: Player One Wins!"
+                        '"Game #', gameNumber, " - Player 0: ", p0, " vs Player 1: ", p1, " - Result: Player One Wins!"
                     )
                 );
             }
@@ -144,43 +147,32 @@ library TicTacToeArt {
     function getColorScheme(uint256 _seed) internal pure returns (string memory, string memory, string memory) {
         uint256 colorTheme;
         string memory colorThemeName;
-        string memory generationMethod;
+        string memory colorThemeStyle;
         string memory colorThemeVariables;
         {
-            if (_seed & 0x1F < 25) {
-                generationMethod = "random";
-
-                colorTheme = (_seed >> 5) & 0xFFFFFF;
-                if (_seed & 0x1F < 7) {
-                    colorTheme = (colorTheme << 0x60) | (colorTheme << 0x48) | (colorTheme << 0x30)
-                        | (colorTheme << 0x18) | complementColor(colorTheme);
-                } else if (_seed & 0x1F < 14) {
-                    colorTheme = (darkenColor(colorTheme, 3) << 0x60) | (darkenColor(colorTheme, 1) << 0x48)
-                        | (darkenColor(colorTheme, 2) << 0x30) | (colorTheme << 0x18) | complementColor(colorTheme);
-                } else if (_seed & 0x1F < 21) {
-                    colorTheme = (brightenColor(colorTheme, 3) << 0x60) | (brightenColor(colorTheme, 1) << 0x48)
-                        | (brightenColor(colorTheme, 2) << 0x30) | (colorTheme << 0x18) | complementColor(colorTheme);
-                } else if (_seed & 0x1F < 24) {
-                    colorTheme =
-                        (colorTheme << 0x60) | (0xFFFFFF << 0x48) | (colorTheme << 0x18) | complementColor(colorTheme);
-                } else {
-                    colorTheme =
-                        (complementColor(colorTheme) << 0x60) | (colorTheme << 0x18) | complementColor(colorTheme);
-                }
-                colorThemeName = Strings.toHexString(colorTheme, 15);
+            colorTheme = (_seed >> 5) & 0xFFFFFF;
+            if (_seed & 0x1F < 7) {
+                colorThemeStyle = "Uniform";
+                colorTheme = (colorTheme << 0x60) | (colorTheme << 0x48) | (colorTheme << 0x30) | (colorTheme << 0x18)
+                    | complementColor(colorTheme);
+            } else if (_seed & 0x1F < 14) {
+                colorThemeStyle = "Shades";
+                colorTheme = (darkenColor(colorTheme, 3) << 0x60) | (darkenColor(colorTheme, 1) << 0x48)
+                    | (darkenColor(colorTheme, 2) << 0x30) | (colorTheme << 0x18) | complementColor(colorTheme);
+            } else if (_seed & 0x1F < 21) {
+                colorThemeStyle = "Tints";
+                colorTheme = (brightenColor(colorTheme, 3) << 0x60) | (brightenColor(colorTheme, 1) << 0x48)
+                    | (brightenColor(colorTheme, 2) << 0x30) | (colorTheme << 0x18) | complementColor(colorTheme);
+            } else if (_seed & 0x1F < 24) {
+                colorThemeStyle = "Eclipse";
+                colorTheme =
+                    (colorTheme << 0x60) | (0xFFFFFF << 0x48) | (colorTheme << 0x18) | complementColor(colorTheme);
             } else {
-                _seed >>= 5;
-                generationMethod = "curated";
-                colorThemeName =
-                    string(["Nord", "B/W", "Candycorn", "RGB", "VSCode", "Neon", "Jungle", "Corn"][_seed & 7]);
-                colorTheme = [
-                    0x8FBCBBEBCB8BD087705E81ACB48EAD000000FFFFFFFFFFFFFFFFFF000000,
-                    0x0D3B66F4D35EEE964BFAF0CAF95738FFFF0000FF000000FFFF0000FFFF00,
-                    0x1E1E1E569CD6D2D1A2BA7FB54DC4AC00FFFFFFFF000000FF00FF00FF00FF,
-                    0xBE3400015045020D22EABAACBE3400F9C233705860211A28346830F9C233
-                ][(_seed & 7) >> 1];
-                colorTheme = _seed & 1 == 0 ? colorTheme >> 0x78 : colorTheme & 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
+                colorThemeStyle = "Void";
+                colorTheme = (complementColor(colorTheme) << 0x60) | (colorTheme << 0x18) | complementColor(colorTheme);
             }
+            colorThemeName = Strings.toHexString(colorTheme, 15);
+
             colorThemeVariables = string(
                 abi.encodePacked(
                     "--a:",
@@ -191,16 +183,14 @@ library TicTacToeArt {
                     toColorHexString((colorTheme >> 0x30) & 0xFFFFFF),
                     ";--d:",
                     toColorHexString((colorTheme >> 0x18) & 0xFFFFFF),
-                    ";--e:",
+                    ";--:",
                     toColorHexString(colorTheme & 0xFFFFFF),
                     ";"
                 )
             );
         }
 
-        //  0x000000000000000000 1c1719 735d65 392e32 e7bacb 184534
-        // 0xfde8e1 f4a386 fad1c3 e8460d 17b9f2
-        return (colorThemeName, colorThemeVariables, generationMethod);
+        return (colorThemeName, colorThemeVariables, colorThemeStyle);
     }
 
     function getImage(uint256 _board, string memory colorSchemeVariables) internal pure returns (string memory) {
@@ -238,12 +228,12 @@ library TicTacToeArt {
             image = string(
                 abi.encodePacked(
                     image,
-                    " .x00Left {width: 100px;position: absolute;height: 10px;top: 45px;left: 1px;background: var(--e);rotate: 45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
-                    " .x00Right {width: 100px;position: absolute;height: 10px;top: 45px;left: 1px;background: var(--e);rotate: -45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
-                    " .x01Left {width: 100px;position: absolute;height: 10px;top: 45px;left: 101px;background: var(--e);rotate: 45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
-                    " .x01Right {width: 100px;position: absolute;height: 10px;top: 45px;left: 101px;background: var(--e);rotate: -45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
-                    " .x02Left {width: 100px;position: absolute;height: 10px;top: 45px;left: 201px;background: var(--e);rotate: 45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
-                    " .x02Right {width: 100px;position: absolute;height: 10px;top: 45px;left: 201px;background: var(--e);rotate: -45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}"
+                    " .x00Left {width: 100px;position: absolute;height: 10px;top: 45px;left: 1px;background: var(--d);rotate: 45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .x00Right {width: 100px;position: absolute;height: 10px;top: 45px;left: 1px;background: var(--d);rotate: -45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .x01Left {width: 100px;position: absolute;height: 10px;top: 45px;left: 101px;background: var(--d);rotate: 45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .x01Right {width: 100px;position: absolute;height: 10px;top: 45px;left: 101px;background: var(--d);rotate: -45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .x02Left {width: 100px;position: absolute;height: 10px;top: 45px;left: 201px;background: var(--d);rotate: 45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .x02Right {width: 100px;position: absolute;height: 10px;top: 45px;left: 201px;background: var(--d);rotate: -45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}"
                 )
             );
         }
@@ -251,12 +241,12 @@ library TicTacToeArt {
             image = string(
                 abi.encodePacked(
                     image,
-                    " .x10Left {width: 100px;position: absolute;height: 10px;top: 145px;left: 1px;background: var(--e);rotate: 45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
-                    " .x10Right {width: 100px;position: absolute;height: 10px;top: 145px;left: 1px;background: var(--e);rotate: -45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
-                    " .x11Left {width: 100px;position: absolute;height: 10px;top: 145px;left: 101px;background: var(--e);rotate: 45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
-                    " .x11Right {width: 100px;position: absolute;height: 10px;top: 145px;left: 101px;background: var(--e);rotate: -45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
-                    " .x12Left {width: 100px;position: absolute;height: 10px;top: 145px;left: 201px;background: var(--e);rotate: 45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
-                    " .x12Right {width: 100px;position: absolute;height: 10px;top: 145px;left: 201px;background: var(--e);rotate: -45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}"
+                    " .x10Left {width: 100px;position: absolute;height: 10px;top: 145px;left: 1px;background: var(--d);rotate: 45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .x10Right {width: 100px;position: absolute;height: 10px;top: 145px;left: 1px;background: var(--d);rotate: -45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .x11Left {width: 100px;position: absolute;height: 10px;top: 145px;left: 101px;background: var(--d);rotate: 45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .x11Right {width: 100px;position: absolute;height: 10px;top: 145px;left: 101px;background: var(--d);rotate: -45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .x12Left {width: 100px;position: absolute;height: 10px;top: 145px;left: 201px;background: var(--d);rotate: 45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .x12Right {width: 100px;position: absolute;height: 10px;top: 145px;left: 201px;background: var(--d);rotate: -45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}"
                 )
             );
         }
@@ -264,12 +254,12 @@ library TicTacToeArt {
             image = string(
                 abi.encodePacked(
                     image,
-                    " .x20Left {width: 100px;position: absolute;height: 10px;top: 245px;left: 1px;background: var(--e);rotate: 45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
-                    " .x20Right {width: 100px;position: absolute;height: 10px;top: 245px;left: 1px;background: var(--e);rotate: -45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
-                    " .x21Left {width: 100px;position: absolute;height: 10px;top: 245px;left: 101px;background: var(--e);rotate: 45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
-                    " .x21Right {width: 100px;position: absolute;height: 10px;top: 245px;left: 101px;background: var(--e);rotate: -45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
-                    " .x22Left {width: 100px;position: absolute;height: 10px;top: 245px;left: 201px;background: var(--e);rotate: 45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
-                    " .x22Right {width: 100px;position: absolute;height: 10px;top: 245px;left: 201px;background: var(--e);rotate: -45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}"
+                    " .x20Left {width: 100px;position: absolute;height: 10px;top: 245px;left: 1px;background: var(--d);rotate: 45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .x20Right {width: 100px;position: absolute;height: 10px;top: 245px;left: 1px;background: var(--d);rotate: -45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .x21Left {width: 100px;position: absolute;height: 10px;top: 245px;left: 101px;background: var(--d);rotate: 45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .x21Right {width: 100px;position: absolute;height: 10px;top: 245px;left: 101px;background: var(--d);rotate: -45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .x22Left {width: 100px;position: absolute;height: 10px;top: 245px;left: 201px;background: var(--d);rotate: 45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}",
+                    " .x22Right {width: 100px;position: absolute;height: 10px;top: 245px;left: 201px;background: var(--d);rotate: -45deg;border-top-left-radius: 30px;border-top-right-radius: 30px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px;}"
                 )
             );
         }
