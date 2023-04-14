@@ -1,15 +1,17 @@
 # TicTacToe
 
-Somewhat optimized tictactoe implementation in solidity. 
-Heavily influenced by fiveoutofnine.  
+Somewhat optimized tictactoe implementation in solidity. Heavily influenced by fiveoutofnine (tyvm).  
 
 Optimization is to pack tictactoe games into 12 bytes of storage. 
 
 Each game is represented as one uint256. The bytes are used as follows: 
 
 Byte Number: 
-   1  2  3  4  5  6  7  8  9 10 11 12 13 -><br>
-   |  |  |  |  |  |  |  |  |  |  |  |  | <br>
+
+   1  2  3  4  5  6  7  8  9 10 11 12 13 ->
+
+   |  |  |  |  |  |  |  |  |  |  |  |  | 
+
 0x00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
 
 | Byte Number | Pupose              |
