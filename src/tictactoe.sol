@@ -121,8 +121,9 @@ contract TicTacToe is ERC721, Owned {
     /// 6 7 8
     function takeTurn(uint256 _gameID, uint256 _move) external {
         unchecked {
-            (uint256 game, address playerZero, address playerOne) = retrieveAllGameInfo(_gameID);
 
+            (uint256 game, address playerZero, address playerOne) = retrieveAllGameInfo(_gameID);
+            
             if (!game.isLegalMove(_move)) {
                 revert Game.IllegalMove();
             }
