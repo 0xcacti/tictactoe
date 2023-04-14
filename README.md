@@ -1,7 +1,8 @@
 # TicTacToe
 
 Somewhat optimized tictactoe implementation in solidity. 
-Heavily influenced by fiveoutofnine. 
+Heavily influenced by fiveoutofnine.  Hypothetically, you could bitpack more games of tictactoe into single slots,
+however, due to the need to track player addresses, packing more than one game into a slot becomes gas inefficient (as far as I can tell).
 
 ### To Do 
 - [x] Write core game logic 
