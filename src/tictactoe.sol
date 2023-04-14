@@ -60,6 +60,12 @@ contract TicTacToe is ERC721, Owned {
     /// @notice Error on illegal actions before game is over.
     error GameNotOver();
 
+    /// @notice Error on token not minted.
+    error TokenNotMinted();
+
+    /// @notice Error on token already minted.
+    error TokenAlreadyMinted();
+
     /*//////////////////////////////////////////////////////////////
                         CONSTRUCTOR AND WITHDRAW 
     //////////////////////////////////////////////////////////////*/
@@ -125,11 +131,12 @@ contract TicTacToe is ERC721, Owned {
                 revert Game.GameOver();
             }
 
-            uint256 turn = game.getTurn();
-
             if (msg.sender != playerZero && msg.sender != playerOne) {
                 revert InvalidPlayer();
             }
+
+            uint256 turn = game.getTurn();
+
 
             if (msg.sender == playerZero && turn == 1) {
                 revert NotYourTurn();
@@ -167,6 +174,9 @@ contract TicTacToe is ERC721, Owned {
         }
 
         uint256 tokenID = (_gameID << 160) | uint256(uint160(playerNumber == 0 ? playerZero : playerOne));
+        if (minted[tokenID]) {
+            revert TokenAlreadyMinted();
+        }
         minted[tokenID] = true;
         _safeMint(playerNumber == 0 ? playerZero : playerOne, tokenID);
     }
@@ -208,7 +218,9 @@ contract TicTacToe is ERC721, Owned {
     /// @param _tokenID the tokenID for which to retrieve metadata
     /// @return the tokenURI for the contract
     function tokenURI(uint256 _tokenID) public view virtual override returns (string memory) {
-        require(_ownerOf[_tokenID] != address(0), "NOT_MINTED");
+        if (_ownerOf[_tokenID] == address(0)) {
+            revert TokenNotMinted();
+        }
         return
             (bytes(baseURI)).length == 0 ? _tokenURI(_tokenID) : string(abi.encodePacked(baseURI, _tokenID.toString()));
     }
@@ -217,7 +229,9 @@ contract TicTacToe is ERC721, Owned {
     /// @param _tokenID the tokenID for which to retrieve metadata
     /// @return the tokenURI for the contract
     function _tokenURI(uint256 _tokenID) public view returns (string memory) {
-        require(_ownerOf[_tokenID] != address(0), "NOT_MINTED");
+        if (_ownerOf[_tokenID] == address(0)) {
+            revert TokenNotMinted();
+        }
         uint256 gameIDComponent = _tokenID >> 160;
         uint256 _gameID = (gameIDComponent % 2 == 0) ? gameIDComponent : gameIDComponent - 1;
         (uint256 game, address playerZero, address playerOne) = retrieveAllGameInfo(_gameID);

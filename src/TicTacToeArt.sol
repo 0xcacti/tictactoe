@@ -8,49 +8,26 @@ import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
 /// @title A library that generates HTML art for TicTacToe - Heavily influenced by fiveoutofnine
 /// @author 0xcacti
 /// @notice Below details how the metadata and art are generated:
-
-/// ==============================================Name==============================================
-/// Expressed as Python3 f-strings below, token names generate as
-///                     ``f"0xcacti - Game #{game_id}, Result #{result}"''.
-/// ==========================================Description===========================================
-/// Token descriptions states player addresses and outcome in plain English.
-/// ==============================================Art===============================================
-/// The art is generated as HTML code with in-line CSS (0 JS) where color scheme is chosen off of
-/// a seed value. The art is base 64-encoded and stored in the metadata.
-/// ==========================================Attributes============================================
-/// 
-
-// "attributes": [
-//     {
-//         "trait_type": "Result",
-//         "value": "Win"
-//     },
-//     {
-//         "trait_type": "Player",
-//         "value": "Player 0"
-//     },
-//     {
-//         "trait_type": "Color Theme",
-//         "value": "Nord"
-//     },
-//     {
-//         "trait_type": "Color Theme Sytle",
-//         "value": "Void"
-//     }
-// ]
+/// @dev The art is generated as html code and base64-encoded.  The json metadata containing this 
+/// base64 encoded art is then also base64 encoded.  Through this method all image data is stored
+/// entirely on chain.  The following fields are included in the metadata: 
+/// Name: The name of the NFT in the form `Game #{game_id}, Result #{result}`.
+/// Description: The description of the NFT including game number, player addresses, and outcome. 
+/// Art: base64 html art with colorway generated from the gameID game board, and player address. 
+/// Attributes: Attributes include game result, player address, and colorway information. 
 
 library TicTacToeArt {
     using Game for uint256;
 
+    /// @notice The base hex digits used for color pallete generation.
     bytes32 internal constant HEXADECIMAL_DIGITS = "0123456789ABCDEF";
-    bytes32 internal constant FILE_NAMES = "abcdef";
 
     /// @notice Takes in data for a given TicTacToe NFT and outputs its Base64-encoded metadata.
     /// @dev The output is base 64-encoded.
-    /// @param gameBoard A bitpacked uint256 representing the game board (see Game.sol).
-    /// @param playerZero The address of the player who plays as x
-    /// @param playerOne The address of the player who plays as o
-    /// @return Base 64-encoded JSON of metadata generated from `_internalId` and `_move`.
+    /// @param gameBoard A bitpacked uint256 representing the game board. 
+    /// @param playerZero The address of the player who plays as x.
+    /// @param playerOne The address of the player who plays as o.
+    /// @return Base 64-encoded JSON metadata for the NFT. 
     function getMetadata(uint256 gameID, uint256 tokenID, uint256 gameBoard, address playerZero, address playerOne)
         internal
         pure

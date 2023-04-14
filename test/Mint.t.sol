@@ -67,4 +67,25 @@ contract MintTest is Test {
         vm.expectRevert(TicTacToe.IncorrectPayment.selector);
         game.mintForBothPlayers{value: 0.009 ether}(gameID);
     }
+
+    // test tokenURI fails for non-existent token 
+    function testTokenURIFailsForNonExistentToken() public {
+        uint256 gameID = game.createNewGame(playerZero, playerOne);
+ 
+        vm.expectRevert(TicTacToe.TokenNotMinted.selector);
+        game.tokenURI(0);
+
+        vm.expectRevert(TicTacToe.TokenNotMinted.selector);
+        game._tokenURI(gameID);
+
+    }
+
+    function testReMintingIsRejected() public {
+        uint256 gameID = game.createNewGame(playerZero, playerOne);
+        uint256[9] memory turns = [uint256(1), 0, 3, 2, 4, 5, 6, 7, 8];
+        utils.playGame(gameID, turns);
+        game.mint{value: 0.005 ether}(gameID, 0);
+        vm.expectRevert(TicTacToe.TokenAlreadyMinted.selector);
+        game.mint{value: 0.005 ether}(gameID, 0);
+    }
 }
