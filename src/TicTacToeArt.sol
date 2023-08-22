@@ -15,12 +15,15 @@ import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
 /// Description: The description of the NFT including game number, player addresses, and outcome. 
 /// Art: base64 html art with colorway generated from the gameID game board, and player address. 
 /// Attributes: Attributes include game result, player address, and colorway information. 
-
 library TicTacToeArt {
     using Game for uint256;
 
     /// @notice The base hex digits used for color pallete generation.
     bytes32 internal constant HEXADECIMAL_DIGITS = "0123456789ABCDEF";
+    
+    /// @notice The base64 digits used for color pallete generation. 
+    bytes32 internal constant SUMMER = 0x87970b686eb726750ec792d49da173387a567764d691294d764e53439359c436;
+    
 
     /// @notice Takes in data for a given TicTacToe NFT and outputs its Base64-encoded metadata.
     /// @dev The output is base 64-encoded.
@@ -175,6 +178,12 @@ library TicTacToeArt {
         }
 
         return (colorThemeName, colorThemeVariables, colorThemeStyle);
+    }
+
+    function getAltColorScheme(uint256 _seed) internal pure returns (string memory, string memory, string memory) { 
+
+
+
     }
 
     /// @notice Takes in data for a given TicTacToe NFT and generates the html data for the image
