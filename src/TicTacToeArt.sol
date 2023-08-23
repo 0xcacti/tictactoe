@@ -23,39 +23,55 @@ library TicTacToeArt {
     /// @notice address of the colormap registry used for fetching color schemes
     IColormapRegistry internal constant COLOR_MAP_REGISTRY =
         IColormapRegistry(0x0000000012883D1da628e31c0FE52e35DcF95D50);
-    /// @notice The base64 digits used for color pallete generation.
+    /// @notice The base64 digits used for color pallete fetching
     bytes32 internal constant CMRMAP =
         0x850ce48e7291439b1e41d21fc3f75dddd97580a4ff94aa9ebdd2bcbd423ea1e8;
+    /// @notice The base64 digits used for color pallete fetching
     bytes32 internal constant WISTIA =
         0x4f5e8ea8862eff315c110b682ee070b459ba8983a7575c9a9c4c25007039109d;
+    /// @notice The base64 digits used for color pallete fetching
     bytes32 internal constant AUTUMN =
         0xf2e92189cb6903b98d854cd74ece6c3fafdb2d3472828a950633fdaa52e05032;
+    /// @notice The base64 digits used for color pallete fetching
     bytes32 internal constant BINARY =
         0xa33e6c7c5627ecabfd54c4d85f9bf04815fe89a91379fcf56ccd8177e086db21;
+    /// @notice The base64 digits used for color pallete fetching
     bytes32 internal constant BONE =
         0xaa84b30df806b46f859a413cb036bc91466307aec5903fc4635c00a421f25d5c;
+    /// @notice The base64 digits used for color pallete fetching
     bytes32 internal constant COOL =
         0x864a6ee98b9b21ac0291523750d637250405c24a6575e1f75cfbd7209a810ce6;
+    /// @notice The base64 digits used for color pallete fetching
     bytes32 internal constant COPPER =
         0xfd60cd3811f002814944a7d36167b7c9436187a389f2ee476dc883e37dc76bd2;
+    /// @notice The base64 digits used for color pallete fetching
     bytes32 internal constant GIST_RAINBOW =
         0xa8309447f8bd3b5e5e88a0abc05080b7682e4456c388b8636d45f5abb2ad2587;
+    /// @notice The base64 digits used for color pallete fetching
     bytes32 internal constant GIST_STERN =
         0x3be719b0c342797212c4cb33fde865ed9cbe486eb67176265bc0869b54dee925;
+    /// @notice The base64 digits used for color pallete fetching
     bytes32 internal constant GRAY =
         0xca0da6b6309ed2117508207d68a59a18ccaf54ba9aa329f4f60a77481fcf2027;
+    /// @notice The base64 digits used for color pallete fetching
     bytes32 internal constant HOT =
         0x5ccb29670bb9de0e3911d8e47bde627b0e3640e49c3d6a88d51ff699160dfbe1;
+    /// @notice The base64 digits used for color pallete fetching
     bytes32 internal constant HSV =
         0x3de8f27f386dab3dbab473f3cc16870a717fe5692b4f6a45003d175c559dfcba;
+    /// @notice The base64 digits used for color pallete fetching
     bytes32 internal constant JET =
         0x026736ef8439ebcf8e7b8006bf8cb7482ced84d71b900407a9ed63e1b7bfe234;
+    /// @notice The base64 digits used for color pallete fetching
     bytes32 internal constant SPRING =
         0xc1806ea961848ac00c1f20aa0611529da522a7bd125a3036fe4641b07ee5c61c;
+    /// @notice The base64 digits used for color pallete fetching
     bytes32 internal constant SUMMER =
         0x87970b686eb726750ec792d49da173387a567764d691294d764e53439359c436;
+    /// @notice The base64 digits used for color pallete fetching
     bytes32 internal constant TERRAIN =
         0xaa6277ab923279cf59d78b9b5b7fb5089c90802c353489571fca3c138056fb1b;
+    /// @notice The base64 digits used for color pallete fetching
     bytes32 internal constant WINTER =
         0xdc1cecffc00e2f3196daaf53c27e53e6052a86dc875adb91607824d62469b2bf;
 
