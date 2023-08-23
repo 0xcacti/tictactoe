@@ -31,28 +31,6 @@ contract MintTest is Test {
         console2.log(metadata);
     }
 
-    function testAltSingleMint() public {
-        uint256 gameID = game.createNewGame(playerZero, playerOne);
-        uint256[9] memory turns = [uint256(1), 0, 3, 2, 4, 5, 6, 7, 8];
-        utils.playGame(gameID, turns);
-        game.mint{value: 0.005 ether}(gameID, 0);
-        uint256 tokenID = (gameID << 160) | uint256(uint160(playerZero));
-        string memory metadata = game.tokenURI(tokenID);
-        string memory colors = game._getColors();
-        console2.log(colors);
-    }
-
-    function testGetColors() public {
-
-
-        IColormapRegistry COLOR_MAP_REGISTRY = IColormapRegistry(0x0000000012883D1da628e31c0FE52e35DcF95D50);
-        /// @notice The base64 digits used for color pallete generation. 
-        bytes32 SUMMER = 0x87970b686eb726750ec792d49da173387a567764d691294d764e53439359c436;
-        string memory colorHex = COLOR_MAP_REGISTRY.getValueAsHexString({ _colormapHash: SUMMER, _position: 42 });
-        console2.log(colorHex);
-    }
-
-
     // test return metadata matches pre-calculated base64 encoded string for double sided mint
     function testDoubleSidedMintMetadata() public {
         uint256 gameID = game.createNewGame(playerZero, playerOne);
@@ -103,6 +81,7 @@ contract MintTest is Test {
 
     }
 
+    // test that minting is rejected if token has already been minted
     function testReMintingIsRejected() public {
         uint256 gameID = game.createNewGame(playerZero, playerOne);
         uint256[9] memory turns = [uint256(1), 0, 3, 2, 4, 5, 6, 7, 8];

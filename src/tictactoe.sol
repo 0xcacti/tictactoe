@@ -239,9 +239,4 @@ contract TicTacToe is ERC721, Owned {
         return TicTacToeArt.getMetadata(_gameID, _tokenID, game, playerZero, playerOne);
     }
 
-
-    function _getColors() public view returns (string memory) {
-        (string memory s1,,) = TicTacToeArt.getAltColorScheme(5);
-        return s1;
-    }
 }
