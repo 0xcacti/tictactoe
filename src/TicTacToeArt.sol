@@ -4,6 +4,7 @@ pragma solidity ^0.8.17;
 import {Base64} from "src/Base64.sol";
 import {Game} from "src/Game.sol";
 import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
+import {IColormapRegistry} from "src/interfaces/IColormapRegistry.sol";
 
 /// @title A library that generates HTML art for TicTacToe - Heavily influenced by fiveoutofnine
 /// @author 0xcacti
@@ -16,11 +17,12 @@ import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
 /// Art: base64 html art with colorway generated from the gameID game board, and player address. 
 /// Attributes: Attributes include game result, player address, and colorway information. 
 library TicTacToeArt {
-    using Game for uint256;
 
+    using Game for uint256;
     /// @notice The base hex digits used for color pallete generation.
     bytes32 internal constant HEXADECIMAL_DIGITS = "0123456789ABCDEF";
-    
+    /// @notice address of the colormap registry used for fetching color schemes
+    IColormapRegistry internal constant COLOR_MAP_REGISTRY = IColormapRegistry(0x0000000012883D1da628e31c0FE52e35DcF95D50);
     /// @notice The base64 digits used for color pallete generation. 
     bytes32 internal constant SUMMER = 0x87970b686eb726750ec792d49da173387a567764d691294d764e53439359c436;
     
@@ -61,6 +63,8 @@ library TicTacToeArt {
                 '"}]}'
             )
         );
+
+        getAltColorScheme(2);
 
         // return the ERC721 Metadata JSON Schema
         return string(
@@ -180,10 +184,10 @@ library TicTacToeArt {
         return (colorThemeName, colorThemeVariables, colorThemeStyle);
     }
 
-    function getAltColorScheme(uint256 _seed) internal pure returns (string memory, string memory, string memory) { 
-
-
-
+    function getAltColorScheme(uint256 _seed) internal returns (string memory, string memory, string memory) { 
+        string memory colorHex = COLOR_MAP_REGISTRY.getValueAsHexString({ _colormapHash: SUMMER, _position: 42 });
+        string memory colorThemeName = string(abi.encodePacked("0x", colorHex));
+        return (colorThemeName, "", "Summer");
     }
 
     /// @notice Takes in data for a given TicTacToe NFT and generates the html data for the image

@@ -30,6 +30,17 @@ contract MintTest is Test {
         console2.log(metadata);
     }
 
+    function testAltSingleMint() public {
+        uint256 gameID = game.createNewGame(playerZero, playerOne);
+        uint256[9] memory turns = [uint256(1), 0, 3, 2, 4, 5, 6, 7, 8];
+        utils.playGame(gameID, turns);
+        game.mint{value: 0.005 ether}(gameID, 0);
+        uint256 tokenID = (gameID << 160) | uint256(uint160(playerZero));
+        string memory metadata = game.tokenURI(tokenID);
+        console2.log(metadata);
+    }
+
+
     // test return metadata matches pre-calculated base64 encoded string for double sided mint
     function testDoubleSidedMintMetadata() public {
         uint256 gameID = game.createNewGame(playerZero, playerOne);

@@ -1,4 +1,11 @@
+@/contracts/=lib/colormap-registry/src/
+@/script/=lib/colormap-registry/script/
+@/test/=lib/colormap-registry/test/
+colormap-registry/=lib/colormap-registry/
 ds-test/=lib/forge-std/lib/ds-test/src/
 forge-std/=lib/forge-std/src/
 openzeppelin-contracts/=lib/openzeppelin-contracts/
+prb-math/=lib/colormap-registry/lib/solidity-trigonometry/lib/prb-math/contracts/
+solidity-trigonometry/=lib/colormap-registry/lib/solidity-trigonometry/src/
 solmate/=lib/solmate/src/
+trig/=lib/colormap-registry/lib/solidity-trigonometry/src/
