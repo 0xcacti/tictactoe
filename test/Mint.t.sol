@@ -5,6 +5,7 @@ import "forge-std/Test.sol";
 import "src/TicTacToe.sol";
 import "test/Utils.sol";
 import {Game} from "src/Game.sol";
+import {IColormapRegistry} from "src/interfaces/IColormapRegistry.sol";
 
 contract MintTest is Test {
     TicTacToe game;
@@ -37,7 +38,18 @@ contract MintTest is Test {
         game.mint{value: 0.005 ether}(gameID, 0);
         uint256 tokenID = (gameID << 160) | uint256(uint160(playerZero));
         string memory metadata = game.tokenURI(tokenID);
-        console2.log(metadata);
+        string memory colors = game._getColors();
+        console2.log(colors);
+    }
+
+    function testGetColors() public {
+
+
+        IColormapRegistry COLOR_MAP_REGISTRY = IColormapRegistry(0x0000000012883D1da628e31c0FE52e35DcF95D50);
+        /// @notice The base64 digits used for color pallete generation. 
+        bytes32 SUMMER = 0x87970b686eb726750ec792d49da173387a567764d691294d764e53439359c436;
+        string memory colorHex = COLOR_MAP_REGISTRY.getValueAsHexString({ _colormapHash: SUMMER, _position: 42 });
+        console2.log(colorHex);
     }
 
 

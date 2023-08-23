@@ -64,7 +64,6 @@ library TicTacToeArt {
             )
         );
 
-        getAltColorScheme(2);
 
         // return the ERC721 Metadata JSON Schema
         return string(
@@ -184,10 +183,9 @@ library TicTacToeArt {
         return (colorThemeName, colorThemeVariables, colorThemeStyle);
     }
 
-    function getAltColorScheme(uint256 _seed) internal returns (string memory, string memory, string memory) { 
+    function getAltColorScheme(uint256 _seed) public view returns (string memory, string memory, string memory) { 
         string memory colorHex = COLOR_MAP_REGISTRY.getValueAsHexString({ _colormapHash: SUMMER, _position: 42 });
-        string memory colorThemeName = string(abi.encodePacked("0x", colorHex));
-        return (colorThemeName, "", "Summer");
+        return (colorHex, "", "Summer");
     }
 
     /// @notice Takes in data for a given TicTacToe NFT and generates the html data for the image
